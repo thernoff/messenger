@@ -1,0 +1,35 @@
+.Avatar{
+    display: inline-block;
+    padding-right: 5px;
+}
+
+.Avatar img.large{
+    width: 200px;
+    height: 200px;
+}
+
+.Avatar img.medium{
+    width: 100px;
+    height: 100px;
+}
+
+.Avatar img.small{
+    width: 50px;
+    height: 50px;
+}
+
+.Avatar img.round{
+    border-radius: 50%;
+}
+
+.Avatar img.square{    
+    border-radius: 10px;
+}
+
+.Avatar .online{
+    border: 3px solid greenyellow;
+}
+
+.Avatar .offline{
+    border: 3px solid palevioletred;
+}

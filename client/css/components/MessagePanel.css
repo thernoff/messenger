@@ -1,0 +1,14 @@
+.MessagePanel{
+
+}
+
+.MessagePanel .chat{
+    height: 300px;
+    margin: 0 0 20px 0;
+    border: solid 1px #999;
+    overflow-y: scroll;
+}
+
+.MessagePanel .footerMessagePanel textarea{
+    width: 350px;
+}

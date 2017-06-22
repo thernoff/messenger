@@ -1,0 +1,12 @@
+.FriendPanel{
+    margin-bottom: 10px;
+}
+
+.FriendPanel .friend{
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.FriendPanel .FilterPanel input{
+    padding: 5px;
+}
