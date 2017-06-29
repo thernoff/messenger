@@ -38,15 +38,16 @@ var InfoPanel = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (InfoPanel.__proto__ || Object.getPrototypeOf(InfoPanel)).call(this, props));
 
-        var currentUser = _UserStore2.default.getCurrentUser();
         _this.state = {
-            currentUser: currentUser
+            currentUser: _UserStore2.default.getCurrentUser(),
+            possibleFriends: _UserStore2.default.getPossibleFriends()
         };
         _UserStore2.default.addListener('change', function () {
             //let currentUser = UserStore.getCurrentUser();
             //console.log(currentUser);
             _this.setState({
-                currentUser: _UserStore2.default.getCurrentUser()
+                currentUser: _UserStore2.default.getCurrentUser(),
+                possibleFriends: _UserStore2.default.getPossibleFriends()
             });
         });
         return _this;
@@ -85,6 +86,13 @@ var InfoPanel = function (_Component) {
                         _Button2.default,
                         { onClick: this.props.onAdd },
                         'Add'
+                    ),
+                    _react2.default.createElement(
+                        _Button2.default,
+                        { onClick: this.props.onNew },
+                        'New (',
+                        this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length,
+                        ')'
                     )
                 ),
                 _react2.default.createElement('div', { style: { clear: 'both' } })

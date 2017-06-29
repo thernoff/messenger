@@ -15,6 +15,7 @@ class Messenger extends Component{
         super();
         this.state = {
             currentUser: UserStore.getCurrentUser(),
+            searchFriends: UserStore.getSearchFriends(),
             possibleFriends: UserStore.getPossibleFriends(),
             typeForm: null,
             errorLogin: false,
@@ -24,16 +25,17 @@ class Messenger extends Component{
         UserStore.addListener('change', () => {            
             this.setState({
                 possibleFriends: UserStore.getPossibleFriends(),
+                searchFriends: UserStore.getSearchFriends(),
                 currentUser: UserStore.getCurrentUser(),
             });
         });
     }
 
-    _actionClick(typeForm) {
-        //console.log(typeForm);
-        this.setState({typeForm: typeForm});
-    }  
-    
+    componentDidMount() {
+      socket.on('report', this._report);
+      socket.on('newPossibleFriend', UserActions.getUserById.bind(UserActions));
+    }
+
     _renderPanels(){
         if (!this.state.currentUser){
             return null;
@@ -46,7 +48,7 @@ class Messenger extends Component{
             </div>
         );
     }
-
+    //Метод отображающий форму авторизации
     _renderAuthForm(){
         return(
             <Dialog
@@ -84,10 +86,10 @@ class Messenger extends Component{
             }
         }
         if (!emptyField){
-            UserActions.getUser(data);
+            UserActions.getUser(data);            
         }
     }  
-
+//Метод отображающий форму регистрации
     _renderRegisterForm(){
         return(
             <Dialog
@@ -192,46 +194,8 @@ class Messenger extends Component{
         }
     }
 
-    _renderListPossibleFriend(){
-        
-        let arrPossibleFriends = this.state.possibleFriends;
-        //console.log(arrPossibleFriends);
-        return(
-            <Dialog
-                modal={true}
-                header="Возможные друзья"
-                onAction={this._cancel.bind(this)}
-                hasCancel={false}
-            >
-                {
-                    arrPossibleFriends.map((friend, idx) => 
-                            {
-                                //console.log(friend);
-                                return (<p>{friend.firstname} {friend.lastname} <Button onClick={this._sendRequestAddToFriends.bind(this, friend)}>+</Button></p>);
-                            }
-                        )
-                }
-            </Dialog>
-        );
-    }
-
-    _cancel(){
-        this.setState({typeForm: null});
-    }
-
-    _sendRequestAddToFriends(possibleFriend){
-        console.log('-----_sendRequestAddToFriends: possibleFriend-----');
-        console.log(possibleFriend);
-        let currentUser = this.state.currentUser;
-        console.log('-----_sendRequestAddToFriends: currentUser-----');
-        console.log(currentUser);
-        if (!possibleFriend.possibleFriends){
-            possibleFriend.possibleFriends = [];
-        }
-        possibleFriend.possibleFriends.push({id: currentUser._id});
-        UserActions.updateUser(possibleFriend);
-    }
-
+    
+//Метод отображает форму поиска Пользователя
     _renderSearchFriendForm(){
         let currentUser = this.state.currentUser;
         return(
@@ -260,17 +224,90 @@ class Messenger extends Component{
         let data = this.refs.addFriendForm.getData();
         if (data){
             UserActions.searchFriend(data);
-            this.setState({typeForm: 'listFriends'});
+            this.setState({typeForm: 'listSearchFriends'});
         }
+    }
+//Метод отображает список пользователей, желающих добавиться в друзья
+    _renderNewFriendList(){
+        let arrPossibleFriends = this.state.possibleFriends;
+        return(
+            <Dialog
+                modal={true}
+                header="Новые друзья"
+                onAction={this._cancel.bind(this)}
+                hasCancel={false}
+            >
+                {
+                    arrPossibleFriends.map((friend, idx) => 
+                            {
+                                return (
+                                    <p>{friend.firstname} {friend.lastname} <Button onClick={this._addToFriends.bind(this, friend)}>+</Button></p>
+                                );
+                            }
+                        )
+                }
+            </Dialog>
+        );
+    }
+//Метод добавляет в друзья пользователей, приславшие заявки на добавление
+    _addToFriends(possibleFriend){
+            let currentUser = this.state.currentUser;
+            //Проверяем наличие объекта possibleFriend в массиве currentUser.friends
+            let position = currentUser.friends.map(function(friend) { return friend.id; }).indexOf(possibleFriend._id);
+            if (position < 0){
+                //console.log('CURRENTUSER: ', currentUser);
+                UserActions.addToFriends(currentUser, possibleFriend);            
+            } else {
+                console.log('Пользователь уже добавлен.');
+            }
+        }
+    
+    _renderSearchPossibleFriendList(){
+        let arrSearchFriends = this.state.searchFriends;
+        return(
+            <Dialog
+                modal={true}
+                header="Возможные друзья"
+                onAction={this._cancel.bind(this)}
+                hasCancel={false}
+            >
+                {
+                    arrSearchFriends.map((friend, idx) => 
+                        {
+                            console.log('FRIEND', friend);
+                            return (
+                                <p>{friend.firstname} {friend.lastname} <Button onClick={this._sendRequestAddToFriends.bind(this, friend)}>+</Button></p>
+                            );
+                        }
+                    )
+                }
+            </Dialog>
+        );
+    }
+
+    _cancel(){
+        this.setState({typeForm: null});
+    }
+
+    _sendRequestAddToFriends(possibleFriend){
+        let currentUser = this.state.currentUser;
+        UserActions.addToPossibleFriends(currentUser, possibleFriend);
+    }
+
+    _actionClick(typeForm) {
+        this.setState({typeForm: typeForm});
     }
 
     render(){
-        //console.log(this.state.currentUser);
         return (
             <div className="Messenger">
 
                 <div className="Panels">
-                    <InfoPanel onEdit={this._actionClick.bind(this, 'editForm')} onAdd={this._actionClick.bind(this, 'searchFriendForm')}/>
+                    <InfoPanel 
+                        onEdit={this._actionClick.bind(this, 'editForm')} 
+                        onAdd={this._actionClick.bind(this, 'searchFriendForm')}
+                        onNew={this._actionClick.bind(this, 'newFriendsList')}
+                    />
                     <FriendPanel />
                     <MessagePanel />
                 </div>
@@ -285,9 +322,7 @@ class Messenger extends Component{
         if (this.state.currentUser._id){
             return null;
         }
-        switch (this.state.typeForm){            
-            case 'editForm':
-                return this._renderEditProfileForm();
+        switch (this.state.typeForm){
             case 'registerForm':
                 return this._renderRegisterForm();
             case 'authForm':
@@ -299,8 +334,10 @@ class Messenger extends Component{
 
     _renderForm(){
         switch (this.state.typeForm){
-            case 'listFriends':
-                return this._renderListPossibleFriend();
+            case 'newFriendsList':
+                return this._renderNewFriendList();
+            case 'listSearchFriends':
+                return this._renderSearchPossibleFriendList();
             case 'searchFriendForm':
                 return this._renderSearchFriendForm();
             case 'editForm':

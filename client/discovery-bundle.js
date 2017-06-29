@@ -274,7 +274,10 @@ var Avatar = function (_Component) {
         var _this = _possibleConstructorReturn(this, (Avatar.__proto__ || Object.getPrototypeOf(Avatar)).call(this, props));
 
         _this.state = {
+            userId: props.userId,
             src: props.src,
+            title: props.title,
+            alt: props.alt,
             size: props.size,
             form: props.form,
             online: true
@@ -290,7 +293,9 @@ var Avatar = function (_Component) {
                 'div',
                 { className: 'Avatar' },
                 _react2.default.createElement('img', { className: (0, _classnames2.default)(this.state.size, this.state.form, { 'online': online, 'offline': !online }),
-                    src: this.state.src
+                    src: this.state.src,
+                    alt: this.state.alt,
+                    title: this.state.title
                 })
             );
         }
@@ -307,6 +312,9 @@ Avatar.propTypes = {
 };
 
 Avatar.defaultProps = {
+    title: '',
+    alt: '',
+    src: './avatars/no-avatar.jpg',
     form: 'round',
     online: true
 };
@@ -690,6 +698,10 @@ var _Button = require('./Button');
 
 var _Button2 = _interopRequireDefault(_Button);
 
+var _UserStore = require('../flux/UserStore');
+
+var _UserStore2 = _interopRequireDefault(_UserStore);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -706,7 +718,21 @@ var FriendPanel = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (FriendPanel.__proto__ || Object.getPrototypeOf(FriendPanel)).call(this, props));
 
-        _this.state = {};
+        _this.state = {
+            //possibleFriends: [{a: 'a'}, {b: 'b'}, {c: 'c'}],
+            possibleFriends: _UserStore2.default.getPossibleFriends(),
+            currentUser: _UserStore2.default.getCurrentUser(),
+            friends: _UserStore2.default.getFriends()
+        };
+        _UserStore2.default.addListener('change', function () {
+            //console.log(UserStore.getPossibleFriends());
+            _this.setState({
+                possibleFriends: _UserStore2.default.getPossibleFriends(),
+                //possibleFriends: [{a: 'a'}, {b: 'b'}],
+                currentUser: _UserStore2.default.getCurrentUser(),
+                friends: _UserStore2.default.getFriends()
+            });
+        });
         return _this;
     }
 
@@ -769,10 +795,18 @@ var FriendPanel = function (_Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'friend' },
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' }),
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' }),
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' }),
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' })
+                        _react2.default.createElement(
+                            'h3',
+                            null,
+                            this.state.friends.map(function (friend) {
+                                //console.log('friend');
+                                return _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: friend.mainImg, title: friend.firstname + ' ' + friend.lastname, alt: friend.login });
+                            }, this)
+                            //(this.state.possibleFriends.length > 0) 
+                            //? this.state.possibleFriends.length
+                            //: this.state.possibleFriends.length
+
+                        )
                     ),
                     _react2.default.createElement('div', { style: { clear: 'both' } })
                 )
@@ -784,7 +818,7 @@ var FriendPanel = function (_Component) {
 }(_react.Component);
 
 exports.default = FriendPanel;
-},{"./Avatar":3,"./Button":4,"react":204}],9:[function(require,module,exports){
+},{"../flux/UserStore":16,"./Avatar":3,"./Button":4,"react":204}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -825,15 +859,16 @@ var InfoPanel = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (InfoPanel.__proto__ || Object.getPrototypeOf(InfoPanel)).call(this, props));
 
-        var currentUser = _UserStore2.default.getCurrentUser();
         _this.state = {
-            currentUser: currentUser
+            currentUser: _UserStore2.default.getCurrentUser(),
+            possibleFriends: _UserStore2.default.getPossibleFriends()
         };
         _UserStore2.default.addListener('change', function () {
             //let currentUser = UserStore.getCurrentUser();
             //console.log(currentUser);
             _this.setState({
-                currentUser: _UserStore2.default.getCurrentUser()
+                currentUser: _UserStore2.default.getCurrentUser(),
+                possibleFriends: _UserStore2.default.getPossibleFriends()
             });
         });
         return _this;
@@ -872,6 +907,13 @@ var InfoPanel = function (_Component) {
                         _Button2.default,
                         { onClick: this.props.onAdd },
                         'Add'
+                    ),
+                    _react2.default.createElement(
+                        _Button2.default,
+                        { onClick: this.props.onNew },
+                        'New (',
+                        this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length,
+                        ')'
                     )
                 ),
                 _react2.default.createElement('div', { style: { clear: 'both' } })
@@ -1618,8 +1660,9 @@ var _fbemitter = require('fbemitter');
 
 var currentUser = void 0;
 var emitter = new _fbemitter.EventEmitter();
-var newFriends = void 0;
-
+var possibleFriends = void 0;
+var searchFriends = void 0;
+var friends = void 0;
 var UserStore = {
     init: function init() {
         //currentUser = currentUser;
@@ -1629,12 +1672,17 @@ var UserStore = {
             lastname: '',
             email: '',
             password: '',
-            '_id': null
+            '_id': null,
+            possibleFriends: [],
+            friends: []
         };
 
-        newFriends = [{}];
+        possibleFriends = [];
+        searchFriends = [];
+        friends = [];
     },
     getCurrentUser: function getCurrentUser() {
+        //let currentUser = this.store.currentUser();            
         return currentUser;
     },
     setUser: function setUser(newUser) {
@@ -1644,12 +1692,34 @@ var UserStore = {
         console.log(currentUser);
         emitter.emit('change');
     },
-    setPossibleFriends: function setPossibleFriends(arrNewFriends) {
-        newFriends = arrNewFriends;
+    setPossibleFriends: function setPossibleFriends(arrPossibleFriends) {
+        //possibleFriends = arrPossibleFriends;
+        arrPossibleFriends ? possibleFriends = arrPossibleFriends : possibleFriends = [];
+        console.log('-----UserStore.setPossibleFriends-----');
+        console.log('-----данные Возможные друзья записаны в хранилище-----');
+        console.log(possibleFriends);
         emitter.emit('change');
     },
     getPossibleFriends: function getPossibleFriends() {
-        return newFriends;
+        return possibleFriends;
+    },
+    setFriends: function setFriends(arrFriends) {
+        //possibleFriends = arrPossibleFriends;
+        arrFriends ? friends = arrFriends : friends = [];
+        console.log('-----UserStore.setFriends-----');
+        console.log('-----данные Друзья записаны в хранилище-----');
+        console.log(friends);
+        emitter.emit('change');
+    },
+    getFriends: function getFriends() {
+        return friends;
+    },
+    setSearchFriends: function setSearchFriends(arrSearchFriends) {
+        searchFriends = arrSearchFriends;
+        emitter.emit('change');
+    },
+    getSearchFriends: function getSearchFriends() {
+        return searchFriends;
     },
     addListener: function addListener(eventType, fn) {
         emitter.addListener(eventType, fn);

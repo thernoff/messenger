@@ -31,7 +31,10 @@ var Avatar = function (_Component) {
         var _this = _possibleConstructorReturn(this, (Avatar.__proto__ || Object.getPrototypeOf(Avatar)).call(this, props));
 
         _this.state = {
+            userId: props.userId,
             src: props.src,
+            title: props.title,
+            alt: props.alt,
             size: props.size,
             form: props.form,
             online: true
@@ -47,7 +50,9 @@ var Avatar = function (_Component) {
                 'div',
                 { className: 'Avatar' },
                 _react2.default.createElement('img', { className: (0, _classnames2.default)(this.state.size, this.state.form, { 'online': online, 'offline': !online }),
-                    src: this.state.src
+                    src: this.state.src,
+                    alt: this.state.alt,
+                    title: this.state.title
                 })
             );
         }
@@ -64,6 +69,9 @@ Avatar.propTypes = {
 };
 
 Avatar.defaultProps = {
+    title: '',
+    alt: '',
+    src: './avatars/no-avatar.jpg',
     form: 'round',
     online: true
 };

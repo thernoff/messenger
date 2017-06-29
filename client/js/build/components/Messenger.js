@@ -62,6 +62,7 @@ var Messenger = function (_Component) {
 
         _this.state = {
             currentUser: _UserStore2.default.getCurrentUser(),
+            searchFriends: _UserStore2.default.getSearchFriends(),
             possibleFriends: _UserStore2.default.getPossibleFriends(),
             typeForm: null,
             errorLogin: false,
@@ -71,6 +72,7 @@ var Messenger = function (_Component) {
         _UserStore2.default.addListener('change', function () {
             _this.setState({
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
+                searchFriends: _UserStore2.default.getSearchFriends(),
                 currentUser: _UserStore2.default.getCurrentUser()
             });
         });
@@ -78,10 +80,10 @@ var Messenger = function (_Component) {
     }
 
     _createClass(Messenger, [{
-        key: '_actionClick',
-        value: function _actionClick(typeForm) {
-            //console.log(typeForm);
-            this.setState({ typeForm: typeForm });
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            socket.on('report', this._report);
+            socket.on('newPossibleFriend', _UserActions2.default.getUserById.bind(_UserActions2.default));
         }
     }, {
         key: '_renderPanels',
@@ -97,6 +99,8 @@ var Messenger = function (_Component) {
                 _react2.default.createElement(_MessagePanel2.default, null)
             );
         }
+        //Метод отображающий форму авторизации
+
     }, {
         key: '_renderAuthForm',
         value: function _renderAuthForm() {
@@ -143,6 +147,8 @@ var Messenger = function (_Component) {
                 _UserActions2.default.getUser(data);
             }
         }
+        //Метод отображающий форму регистрации
+
     }, {
         key: '_renderRegisterForm',
         value: function _renderRegisterForm() {
@@ -249,58 +255,9 @@ var Messenger = function (_Component) {
                 //setTimeout(UserActions.getUserById.bind(this, this.state.currentUser._id), 1000);
             }
         }
-    }, {
-        key: '_renderListPossibleFriend',
-        value: function _renderListPossibleFriend() {
-            var _this2 = this;
 
-            var arrPossibleFriends = this.state.possibleFriends;
-            //console.log(arrPossibleFriends);
-            return _react2.default.createElement(
-                _Dialog2.default,
-                {
-                    modal: true,
-                    header: '\u0412\u043E\u0437\u043C\u043E\u0436\u043D\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
-                    onAction: this._cancel.bind(this),
-                    hasCancel: false
-                },
-                arrPossibleFriends.map(function (friend, idx) {
-                    //console.log(friend);
-                    return _react2.default.createElement(
-                        'p',
-                        null,
-                        friend.firstname,
-                        ' ',
-                        friend.lastname,
-                        ' ',
-                        _react2.default.createElement(
-                            _Button2.default,
-                            { onClick: _this2._sendRequestAddToFriends.bind(_this2, friend) },
-                            '+'
-                        )
-                    );
-                })
-            );
-        }
-    }, {
-        key: '_cancel',
-        value: function _cancel() {
-            this.setState({ typeForm: null });
-        }
-    }, {
-        key: '_sendRequestAddToFriends',
-        value: function _sendRequestAddToFriends(possibleFriend) {
-            console.log('-----_sendRequestAddToFriends: possibleFriend-----');
-            console.log(possibleFriend);
-            var currentUser = this.state.currentUser;
-            console.log('-----_sendRequestAddToFriends: currentUser-----');
-            console.log(currentUser);
-            if (!possibleFriend.possibleFriends) {
-                possibleFriend.possibleFriends = [];
-            }
-            possibleFriend.possibleFriends.push({ id: currentUser._id });
-            _UserActions2.default.updateUser(possibleFriend);
-        }
+        //Метод отображает форму поиска Пользователя
+
     }, {
         key: '_renderSearchFriendForm',
         value: function _renderSearchFriendForm() {
@@ -330,20 +287,121 @@ var Messenger = function (_Component) {
             var data = this.refs.addFriendForm.getData();
             if (data) {
                 _UserActions2.default.searchFriend(data);
-                this.setState({ typeForm: 'listFriends' });
+                this.setState({ typeForm: 'listSearchFriends' });
             }
+        }
+        //Метод отображает список пользователей, желающих добавиться в друзья
+
+    }, {
+        key: '_renderNewFriendList',
+        value: function _renderNewFriendList() {
+            var _this2 = this;
+
+            var arrPossibleFriends = this.state.possibleFriends;
+            return _react2.default.createElement(
+                _Dialog2.default,
+                {
+                    modal: true,
+                    header: '\u041D\u043E\u0432\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
+                    onAction: this._cancel.bind(this),
+                    hasCancel: false
+                },
+                arrPossibleFriends.map(function (friend, idx) {
+                    return _react2.default.createElement(
+                        'p',
+                        null,
+                        friend.firstname,
+                        ' ',
+                        friend.lastname,
+                        ' ',
+                        _react2.default.createElement(
+                            _Button2.default,
+                            { onClick: _this2._addToFriends.bind(_this2, friend) },
+                            '+'
+                        )
+                    );
+                })
+            );
+        }
+        //Метод добавляет в друзья пользователей, приславшие заявки на добавление
+
+    }, {
+        key: '_addToFriends',
+        value: function _addToFriends(possibleFriend) {
+            var currentUser = this.state.currentUser;
+            //Проверяем наличие объекта possibleFriend в массиве currentUser.friends
+            var position = currentUser.friends.map(function (friend) {
+                return friend.id;
+            }).indexOf(possibleFriend._id);
+            if (position < 0) {
+                //console.log('CURRENTUSER: ', currentUser);
+                _UserActions2.default.addToFriends(currentUser, possibleFriend);
+            } else {
+                console.log('Пользователь уже добавлен.');
+            }
+        }
+    }, {
+        key: '_renderSearchPossibleFriendList',
+        value: function _renderSearchPossibleFriendList() {
+            var _this3 = this;
+
+            var arrSearchFriends = this.state.searchFriends;
+            return _react2.default.createElement(
+                _Dialog2.default,
+                {
+                    modal: true,
+                    header: '\u0412\u043E\u0437\u043C\u043E\u0436\u043D\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
+                    onAction: this._cancel.bind(this),
+                    hasCancel: false
+                },
+                arrSearchFriends.map(function (friend, idx) {
+                    console.log('FRIEND', friend);
+                    return _react2.default.createElement(
+                        'p',
+                        null,
+                        friend.firstname,
+                        ' ',
+                        friend.lastname,
+                        ' ',
+                        _react2.default.createElement(
+                            _Button2.default,
+                            { onClick: _this3._sendRequestAddToFriends.bind(_this3, friend) },
+                            '+'
+                        )
+                    );
+                })
+            );
+        }
+    }, {
+        key: '_cancel',
+        value: function _cancel() {
+            this.setState({ typeForm: null });
+        }
+    }, {
+        key: '_sendRequestAddToFriends',
+        value: function _sendRequestAddToFriends(possibleFriend) {
+            var currentUser = this.state.currentUser;
+            _UserActions2.default.addToPossibleFriends(currentUser, possibleFriend);
+        }
+    }, {
+        key: '_actionClick',
+        value: function _actionClick(typeForm) {
+            this.setState({ typeForm: typeForm });
         }
     }, {
         key: 'render',
         value: function render() {
-            //console.log(this.state.currentUser);
             return _react2.default.createElement(
                 'div',
                 { className: 'Messenger' },
                 _react2.default.createElement(
                     'div',
                     { className: 'Panels' },
-                    _react2.default.createElement(_InfoPanel2.default, { onEdit: this._actionClick.bind(this, 'editForm'), onAdd: this._actionClick.bind(this, 'searchFriendForm') }),
+                    _react2.default.createElement(_InfoPanel2.default, {
+                        onEdit: this._actionClick.bind(this, 'editForm'),
+                        onAdd: this._actionClick.bind(this, 'searchFriendForm'),
+                        onNew: this._actionClick.bind(this, 'newFriendsList')
+                    }),
                     _react2.default.createElement(_FriendPanel2.default, null),
                     _react2.default.createElement(_MessagePanel2.default, null)
                 ),
@@ -358,8 +416,6 @@ var Messenger = function (_Component) {
                 return null;
             }
             switch (this.state.typeForm) {
-                case 'editForm':
-                    return this._renderEditProfileForm();
                 case 'registerForm':
                     return this._renderRegisterForm();
                 case 'authForm':
@@ -372,8 +428,10 @@ var Messenger = function (_Component) {
         key: '_renderForm',
         value: function _renderForm() {
             switch (this.state.typeForm) {
-                case 'listFriends':
-                    return this._renderListPossibleFriend();
+                case 'newFriendsList':
+                    return this._renderNewFriendList();
+                case 'listSearchFriends':
+                    return this._renderSearchPossibleFriendList();
                 case 'searchFriendForm':
                     return this._renderSearchFriendForm();
                 case 'editForm':

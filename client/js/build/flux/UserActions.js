@@ -26,38 +26,127 @@ var UserActions = {
         });
     },
     updateUser: function updateUser(user) {
+        var _this = this;
+
         _api2.default.updateUser(user).then(function (res) {
             console.log('-----UserActions.updateUser-----');
             console.log('-----пришел результат с сервера-----');
             console.log(res.data);
             var currentUser = _UserStore2.default.getCurrentUser();
             if (currentUser._id === user._id) {
+                _this._setPossibleFriends(res.data.possibleFriends);
                 _UserStore2.default.setUser(res.data);
+            } else {
+                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: user._id });
+                //this._setPossibleFriends(res.data.possibleFriends);
+                //UserStore.setUser(res.data);
             }
         }).catch(function (err) {
             return console.error(err);
         });
     },
-    sendRequestAddToFriends: function sendRequestAddToFriends(currentUserId, possibleFriendId) {
-        _api2.default.sendRequestAddToFriends(currentUserId, possibleFriendId).then(function (res) {
-            console.log('-----UserActions.sendRequestAddToFriends-----');
-            console.log('-----пришел результат с сервера-----');
-            console.log(res.data);
+
+    //Метод посылает запрос на добавление в друзья друг другу для currentUser и possibleFriend
+    //В res приходит объект currentUser (текущий пользователь)
+    addToFriends: function addToFriends(currentUser, possibleFriend) {
+        var _this2 = this;
+
+        _api2.default.addToFriends(currentUser, possibleFriend).then(function (res) {
+            var currentUser = _UserStore2.default.getCurrentUser();
+            if (currentUser._id === res.data._id) {
+                console.log('-----UserActions.addToFriends-----');
+                console.log(res.data);
+                _this2._setFriends(res.data.friends);
+                _this2._setPossibleFriends(res.data.possibleFriends);
+                _UserStore2.default.setUser(res.data);
+                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: possibleFriend._id });
+            }
         }).catch(function (err) {
             return console.error(err);
         });
     },
 
 
-    //Получаем объект User из базы даных и сохраняем его в Хранилище
+    //Метод посылает запрос от currentUser на добавление в возможные друзья possibleFriend
+    addToPossibleFriends: function addToPossibleFriends(currentUser, possibleFriend) {
+        var _this3 = this;
+
+        _api2.default.addToPossibleFriends(currentUser, possibleFriend).then(function (res) {
+            var currentUser = _UserStore2.default.getCurrentUser();
+            if (currentUser._id === res.data._id) {
+                console.log('-----UserActions.addToPossibleFriends-----');
+                console.log(res.data);
+                _this3._setFriends(res.data.friends);
+                _this3._setPossibleFriends(res.data.possibleFriends);
+                _UserStore2.default.setUser(res.data);
+                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: possibleFriend._id });
+            }
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+
+
+    //Получаем объект User из базы даных по логину и паролю, после чего сохраняем его в Хранилище
     getUser: function getUser(data) {
+        var _this4 = this;
+
         var login = data.login;
         var password = data.password;
         _api2.default.getUser(login, password).then(function (res) {
-            console.log('-----UserActions.getUser-----');
-            console.log('-----пришел результат с сервера-----');
+            if (res.data) {
+                console.log('-----UserActions.getUser-----');
+                console.log('-----Объект User пришел результат с сервера-----');
+                console.log(res.data);
+                _UserStore2.default.setUser(res.data);
+                console.log('-----заполняем друзей-----');
+                console.log(res.data.friends);
+                _this4._setFriends(res.data.friends);
+                console.log('-----заполняем возможных друзей-----');
+                console.log(res.data.possibleFriends);
+                _this4._setPossibleFriends(res.data.possibleFriends);
+                socket.emit('auth', res.data._id);
+            }
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+
+    //Получаем объект User из базы даных по id, после чего сохраняем его в Хранилище
+    getUserById: function getUserById(id) {
+        var _this5 = this;
+
+        _api2.default.getUserById(id).then(function (res) {
+            console.log('-----UserActions.getUserById-----');
+            console.log('-----Объект User пришел результат с сервера-----');
             console.log(res.data);
             _UserStore2.default.setUser(res.data);
+            console.log('-----заполняем друзей-----');
+            console.log(res.data.friends);
+            _this5._setFriends(res.data.friends);
+            console.log('-----заполняем возможных друзей-----');
+            console.log(res.data.possibleFriends);
+            _this5._setPossibleFriends(res.data.possibleFriends);
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+
+
+    //Заполняем массив UserStore.possibleFriends объектами Возможных друзей
+    _setPossibleFriends: function _setPossibleFriends(arrObjIdsPossibleFriends) {
+        _api2.default.getPossibleFriends(arrObjIdsPossibleFriends).then(function (res) {
+            _UserStore2.default.setPossibleFriends(res.data);
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+
+
+    //Заполняем массив UserStore.friends объектами Друзей
+    _setFriends: function _setFriends(arrObjIdsFriends) {
+        _api2.default.getFriends(arrObjIdsFriends).then(function (res) {
+            _UserStore2.default.setFriends(res.data);
         }).catch(function (err) {
             return console.error(err);
         });
@@ -66,26 +155,16 @@ var UserActions = {
         var search = data.search;
         _api2.default.searchUser(search).then(function (res) {
             //console.log(res.data);
-            _UserStore2.default.setPossibleFriends(res.data);
-        }).catch(function (err) {
-            return console.error(err);
-        });
-    },
-    getUserById: function getUserById(id) {
-        _api2.default.getUserById(id).then(function (res) {
-            console.log('-----UserActions.getUser-----');
-            console.log('-----пришел результат с сервера-----');
-            console.log(res.data);
-            _UserStore2.default.setUser(res.data);
+            _UserStore2.default.setSearchFriends(res.data);
         }).catch(function (err) {
             return console.error(err);
         });
     },
     deleteUser: function deleteUser(userId) {
-        var _this = this;
+        var _this6 = this;
 
         _api2.default.deleteUser(noteId).then(function () {
-            return _this.loadUsers();
+            return _this6.loadUsers();
         }).catch(function (err) {
             return console.error(err);
         });

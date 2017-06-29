@@ -18,6 +18,10 @@ var _Button = require('./Button');
 
 var _Button2 = _interopRequireDefault(_Button);
 
+var _UserStore = require('../flux/UserStore');
+
+var _UserStore2 = _interopRequireDefault(_UserStore);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34,7 +38,21 @@ var FriendPanel = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (FriendPanel.__proto__ || Object.getPrototypeOf(FriendPanel)).call(this, props));
 
-        _this.state = {};
+        _this.state = {
+            //possibleFriends: [{a: 'a'}, {b: 'b'}, {c: 'c'}],
+            possibleFriends: _UserStore2.default.getPossibleFriends(),
+            currentUser: _UserStore2.default.getCurrentUser(),
+            friends: _UserStore2.default.getFriends()
+        };
+        _UserStore2.default.addListener('change', function () {
+            //console.log(UserStore.getPossibleFriends());
+            _this.setState({
+                possibleFriends: _UserStore2.default.getPossibleFriends(),
+                //possibleFriends: [{a: 'a'}, {b: 'b'}],
+                currentUser: _UserStore2.default.getCurrentUser(),
+                friends: _UserStore2.default.getFriends()
+            });
+        });
         return _this;
     }
 
@@ -97,10 +115,18 @@ var FriendPanel = function (_Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'friend' },
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' }),
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' }),
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' }),
-                        _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: './avatars/aHr3Bhk5.jpg' })
+                        _react2.default.createElement(
+                            'h3',
+                            null,
+                            this.state.friends.map(function (friend) {
+                                //console.log('friend');
+                                return _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: friend.mainImg, title: friend.firstname + ' ' + friend.lastname, alt: friend.login });
+                            }, this)
+                            //(this.state.possibleFriends.length > 0) 
+                            //? this.state.possibleFriends.length
+                            //: this.state.possibleFriends.length
+
+                        )
                     ),
                     _react2.default.createElement('div', { style: { clear: 'both' } })
                 )

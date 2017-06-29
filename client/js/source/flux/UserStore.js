@@ -2,8 +2,9 @@ import {EventEmitter} from 'fbemitter';
 
 let currentUser;
 const emitter = new EventEmitter();
-let newFriends;
-
+let possibleFriends;
+let searchFriends;
+let friends;
 const UserStore = {
     init(){
         //currentUser = currentUser;
@@ -14,12 +15,17 @@ const UserStore = {
             email: '',
             password: '',
             '_id': null,
+            possibleFriends: [],
+            friends: [],
         };
 
-        newFriends = [{}];
+        possibleFriends = [];
+        searchFriends = [];
+        friends = [];
     },
 
     getCurrentUser(){
+        //let currentUser = this.store.currentUser();            
         return currentUser;
     },
 
@@ -31,13 +37,43 @@ const UserStore = {
         emitter.emit('change');
     },
 
-    setPossibleFriends(arrNewFriends){
-        newFriends = arrNewFriends;
+    setPossibleFriends(arrPossibleFriends){        
+        //possibleFriends = arrPossibleFriends;
+        arrPossibleFriends
+            ? possibleFriends = arrPossibleFriends
+            : possibleFriends = [];
+        console.log('-----UserStore.setPossibleFriends-----');
+        console.log('-----данные Возможные друзья записаны в хранилище-----');
+        console.log(possibleFriends);
         emitter.emit('change');
     },
 
     getPossibleFriends(){
-        return newFriends;
+        return possibleFriends;
+    },
+
+    setFriends(arrFriends){        
+        //possibleFriends = arrPossibleFriends;
+        arrFriends
+            ? friends = arrFriends
+            : friends = [];
+        console.log('-----UserStore.setFriends-----');
+        console.log('-----данные Друзья записаны в хранилище-----');
+        console.log(friends);
+        emitter.emit('change');
+    },
+
+    getFriends(){
+        return friends;
+    },
+
+    setSearchFriends(arrSearchFriends){        
+        searchFriends = arrSearchFriends;
+        emitter.emit('change');
+    },
+
+    getSearchFriends(){
+        return searchFriends;
     },
 
     addListener(eventType, fn){

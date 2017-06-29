@@ -5,7 +5,10 @@ class Avatar extends Component{
     constructor(props) {
         super(props);
         this.state = {
+            userId: props.userId,
             src: props.src,
+            title: props.title,
+            alt: props.alt,
             size: props.size,
             form: props.form,
             online: true,
@@ -20,6 +23,8 @@ class Avatar extends Component{
                         this.state.size, this.state.form, {'online' : online, 'offline': !online}
                     )} 
                     src={this.state.src}
+                    alt={this.state.alt}
+                    title={this.state.title}
                 />
             </div>
         );
@@ -34,6 +39,9 @@ Avatar.propTypes = {
 }
 
 Avatar.defaultProps = {
+    title: '',
+    alt: '',
+    src: './avatars/no-avatar.jpg',
     form: 'round',
     online: true,
 };
