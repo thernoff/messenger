@@ -46,5 +46,9 @@ export default {
 
     deleteUser(userId) {
         return axios.delete(`${apiPrefix}/user/${userId}`);
-    }
+    },
+
+    sendMessage(currentUser, activeFriend, objMessage){
+        return axios.post(`${apiPrefix}/message/send/`, {currentUser: currentUser, activeFriend: activeFriend, objMessage: objMessage});
+    },
 }

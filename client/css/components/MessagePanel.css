@@ -10,5 +10,13 @@
 }
 
 .MessagePanel .footerMessagePanel textarea{
-    width: 350px;
+    width: 300px;
+}
+
+.MessagePanel .left{
+    float: left;
+}
+
+.MessagePanel .right{
+    float: right;
 }

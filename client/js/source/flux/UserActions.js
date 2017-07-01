@@ -176,6 +176,33 @@ const UserActions = {
         .catch(err =>
             console.error(err)
         );
+    },
+
+    getDialog(currentUserId){
+        api.getUserById(currentUserId)
+        .then((res) =>
+            {
+                console.log('-----UserActions.getDialog-----');
+                console.log('-----Объект User пришел результат с сервера-----');
+                console.log(res.data);
+                UserStore.setUser(res.data);
+            }
+        )
+        .catch(err =>
+            console.error(err)
+        );
+    },
+
+    sendMessage(currentUser, activeFriend, objMessage){
+        api.sendMessage(currentUser, activeFriend, objMessage)
+        .then( res => {
+            console.log('-----UserActions.sendMessage-----');
+            console.log('-----Объект User с новым диалогом пришел с сервера-----');
+            console.log(res.data);
+            UserStore.setUser(res.data);
+            socket.emit('newMessage', {currentUserId: currentUser._id, activeFriendId: activeFriend._id});
+        } )
+        .catch(err => console.error(err));
     }
 };
 

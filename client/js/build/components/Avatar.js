@@ -28,15 +28,23 @@ var Avatar = function (_Component) {
     function Avatar(props) {
         _classCallCheck(this, Avatar);
 
+        //console.log('===================CONSTRUCTOR===================');
+        for (var key in props) {}
+        //console.log('props['+key+']=', props[key])
+
+        //console.log('===================/CONSTRUCTOR===================');
+
         var _this = _possibleConstructorReturn(this, (Avatar.__proto__ || Object.getPrototypeOf(Avatar)).call(this, props));
 
         _this.state = {
-            userId: props.userId,
+            test: props.test,
+            id: props.id,
             src: props.src,
             title: props.title,
             alt: props.alt,
             size: props.size,
             form: props.form,
+            active: props.active,
             online: true
         };
         return _this;
@@ -48,11 +56,13 @@ var Avatar = function (_Component) {
             var online = this.state.online;
             return _react2.default.createElement(
                 'div',
-                { className: 'Avatar' },
+                { className: (0, _classnames2.default)('Avatar', { 'active': this.props.active }) },
                 _react2.default.createElement('img', { className: (0, _classnames2.default)(this.state.size, this.state.form, { 'online': online, 'offline': !online }),
                     src: this.state.src,
                     alt: this.state.alt,
-                    title: this.state.title
+                    title: this.state.title,
+                    'data-id': this.state.id ? this.state.id : '',
+                    onClick: this.props.onClick
                 })
             );
         }
@@ -65,7 +75,8 @@ Avatar.propTypes = {
     size: _react.PropTypes.string,
     src: _react.PropTypes.string,
     form: _react.PropTypes.string,
-    online: _react.PropTypes.bool
+    online: _react.PropTypes.bool,
+    active: _react.PropTypes.bool
 };
 
 Avatar.defaultProps = {
@@ -73,6 +84,7 @@ Avatar.defaultProps = {
     alt: '',
     src: './avatars/no-avatar.jpg',
     form: 'round',
+    active: false,
     online: true
 };
 

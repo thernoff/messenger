@@ -5,6 +5,8 @@ const emitter = new EventEmitter();
 let possibleFriends;
 let searchFriends;
 let friends;
+let activeFriend;
+let dialog;
 const UserStore = {
     init(){
         //currentUser = currentUser;
@@ -22,10 +24,32 @@ const UserStore = {
         possibleFriends = [];
         searchFriends = [];
         friends = [];
+        activeFriend=null;
+        dialog = [];
     },
 
-    getCurrentUser(){
-        //let currentUser = this.store.currentUser();            
+    setActiveFriend(friend){
+        activeFriend = friend;
+        let posActiveFriend = currentUser.friends.map((item) => {return item.id}).indexOf(friend._id);
+        dialog = currentUser.friends[posActiveFriend].dialog;
+        console.log('UserStore.setActiveFriend: ', dialog);
+        emitter.emit('changeActiveFriend');
+    },
+
+    getDialog(){
+        if (activeFriend){
+            let posActiveFriend = currentUser.friends.map((item) => {return item.id}).indexOf(activeFriend._id);
+            dialog = currentUser.friends[posActiveFriend].dialog;
+            return dialog;
+        }
+        return dialog;
+    },
+
+    getActiveFriend(){ 
+        return activeFriend;
+    },
+
+    getCurrentUser(){          
         return currentUser;
     },
 
@@ -78,7 +102,7 @@ const UserStore = {
 
     addListener(eventType, fn){
         emitter.addListener(eventType, fn);
-    },
+    }
 }
 
 export default UserStore

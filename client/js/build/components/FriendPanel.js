@@ -39,18 +39,23 @@ var FriendPanel = function (_Component) {
         var _this = _possibleConstructorReturn(this, (FriendPanel.__proto__ || Object.getPrototypeOf(FriendPanel)).call(this, props));
 
         _this.state = {
-            //possibleFriends: [{a: 'a'}, {b: 'b'}, {c: 'c'}],
             possibleFriends: _UserStore2.default.getPossibleFriends(),
             currentUser: _UserStore2.default.getCurrentUser(),
-            friends: _UserStore2.default.getFriends()
+            friends: _UserStore2.default.getFriends(),
+            activeFriend: _UserStore2.default.getActiveFriend()
         };
         _UserStore2.default.addListener('change', function () {
             //console.log(UserStore.getPossibleFriends());
             _this.setState({
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
-                //possibleFriends: [{a: 'a'}, {b: 'b'}],
                 currentUser: _UserStore2.default.getCurrentUser(),
                 friends: _UserStore2.default.getFriends()
+            });
+        });
+        _UserStore2.default.addListener('changeActiveFriend', function () {
+            _this.setState({
+                friends: _UserStore2.default.getFriends(),
+                activeFriend: _UserStore2.default.getActiveFriend()
             });
         });
         return _this;
@@ -87,6 +92,8 @@ var FriendPanel = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
                 'div',
                 { className: 'FriendPanel' },
@@ -119,8 +126,23 @@ var FriendPanel = function (_Component) {
                             'h3',
                             null,
                             this.state.friends.map(function (friend) {
-                                //console.log('friend');
-                                return _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: friend.mainImg, title: friend.firstname + ' ' + friend.lastname, alt: friend.login });
+                                //console.log('this.state.activeFriend:', this.state.activeFriend);
+                                //console.log('friend:', friend);
+                                //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
+                                var test = _this2.state.activeFriend !== null ? _this2.state.activeFriend.login : _this2.state.activeFriend;
+                                return _react2.default.createElement(_Avatar2.default, {
+                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
+                                    test: test,
+                                    size: 'small',
+                                    form: 'round',
+                                    src: friend.mainImg,
+                                    title: friend.firstname + ' ' + friend.lastname,
+                                    alt: friend.login,
+                                    id: friend._id,
+                                    onClick: function onClick() {
+                                        _UserStore2.default.setActiveFriend(friend);
+                                    }
+                                });
                             }, this)
                             //(this.state.possibleFriends.length > 0) 
                             //? this.state.possibleFriends.length

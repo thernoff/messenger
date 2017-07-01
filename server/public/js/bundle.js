@@ -232,6 +232,9 @@ exports.default = {
     },
     deleteUser: function deleteUser(userId) {
         return _axios2.default.delete(_config.apiPrefix + '/user/' + userId);
+    },
+    sendMessage: function sendMessage(currentUser, activeFriend, objMessage) {
+        return _axios2.default.post(_config.apiPrefix + '/message/send/', { currentUser: currentUser, activeFriend: activeFriend, objMessage: objMessage });
     }
 };
 },{"../../../../etc/config.json":21,"axios":22}],3:[function(require,module,exports){
@@ -322,15 +325,23 @@ var Avatar = function (_Component) {
     function Avatar(props) {
         _classCallCheck(this, Avatar);
 
+        //console.log('===================CONSTRUCTOR===================');
+        for (var key in props) {}
+        //console.log('props['+key+']=', props[key])
+
+        //console.log('===================/CONSTRUCTOR===================');
+
         var _this = _possibleConstructorReturn(this, (Avatar.__proto__ || Object.getPrototypeOf(Avatar)).call(this, props));
 
         _this.state = {
-            userId: props.userId,
+            test: props.test,
+            id: props.id,
             src: props.src,
             title: props.title,
             alt: props.alt,
             size: props.size,
             form: props.form,
+            active: props.active,
             online: true
         };
         return _this;
@@ -342,11 +353,13 @@ var Avatar = function (_Component) {
             var online = this.state.online;
             return _react2.default.createElement(
                 'div',
-                { className: 'Avatar' },
+                { className: (0, _classnames2.default)('Avatar', { 'active': this.props.active }) },
                 _react2.default.createElement('img', { className: (0, _classnames2.default)(this.state.size, this.state.form, { 'online': online, 'offline': !online }),
                     src: this.state.src,
                     alt: this.state.alt,
-                    title: this.state.title
+                    title: this.state.title,
+                    'data-id': this.state.id ? this.state.id : '',
+                    onClick: this.props.onClick
                 })
             );
         }
@@ -359,7 +372,8 @@ Avatar.propTypes = {
     size: _react.PropTypes.string,
     src: _react.PropTypes.string,
     form: _react.PropTypes.string,
-    online: _react.PropTypes.bool
+    online: _react.PropTypes.bool,
+    active: _react.PropTypes.bool
 };
 
 Avatar.defaultProps = {
@@ -367,6 +381,7 @@ Avatar.defaultProps = {
     alt: '',
     src: './avatars/no-avatar.jpg',
     form: 'round',
+    active: false,
     online: true
 };
 
@@ -770,18 +785,23 @@ var FriendPanel = function (_Component) {
         var _this = _possibleConstructorReturn(this, (FriendPanel.__proto__ || Object.getPrototypeOf(FriendPanel)).call(this, props));
 
         _this.state = {
-            //possibleFriends: [{a: 'a'}, {b: 'b'}, {c: 'c'}],
             possibleFriends: _UserStore2.default.getPossibleFriends(),
             currentUser: _UserStore2.default.getCurrentUser(),
-            friends: _UserStore2.default.getFriends()
+            friends: _UserStore2.default.getFriends(),
+            activeFriend: _UserStore2.default.getActiveFriend()
         };
         _UserStore2.default.addListener('change', function () {
             //console.log(UserStore.getPossibleFriends());
             _this.setState({
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
-                //possibleFriends: [{a: 'a'}, {b: 'b'}],
                 currentUser: _UserStore2.default.getCurrentUser(),
                 friends: _UserStore2.default.getFriends()
+            });
+        });
+        _UserStore2.default.addListener('changeActiveFriend', function () {
+            _this.setState({
+                friends: _UserStore2.default.getFriends(),
+                activeFriend: _UserStore2.default.getActiveFriend()
             });
         });
         return _this;
@@ -818,6 +838,8 @@ var FriendPanel = function (_Component) {
     }, {
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
                 'div',
                 { className: 'FriendPanel' },
@@ -850,8 +872,23 @@ var FriendPanel = function (_Component) {
                             'h3',
                             null,
                             this.state.friends.map(function (friend) {
-                                //console.log('friend');
-                                return _react2.default.createElement(_Avatar2.default, { size: 'small', form: 'round', src: friend.mainImg, title: friend.firstname + ' ' + friend.lastname, alt: friend.login });
+                                //console.log('this.state.activeFriend:', this.state.activeFriend);
+                                //console.log('friend:', friend);
+                                //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
+                                var test = _this2.state.activeFriend !== null ? _this2.state.activeFriend.login : _this2.state.activeFriend;
+                                return _react2.default.createElement(_Avatar2.default, {
+                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
+                                    test: test,
+                                    size: 'small',
+                                    form: 'round',
+                                    src: friend.mainImg,
+                                    title: friend.firstname + ' ' + friend.lastname,
+                                    alt: friend.login,
+                                    id: friend._id,
+                                    onClick: function onClick() {
+                                        _UserStore2.default.setActiveFriend(friend);
+                                    }
+                                });
                             }, this)
                             //(this.state.possibleFriends.length > 0) 
                             //? this.state.possibleFriends.length
@@ -1018,7 +1055,7 @@ var Logo = function (_React$Component) {
 
 exports.default = Logo;
 },{"react":235}],13:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -1026,9 +1063,25 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = require("react");
+var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _Form = require('./Form');
+
+var _Form2 = _interopRequireDefault(_Form);
+
+var _Button = require('./Button');
+
+var _Button2 = _interopRequireDefault(_Button);
+
+var _UserStore = require('../flux/UserStore');
+
+var _UserStore2 = _interopRequireDefault(_UserStore);
+
+var _UserActions = require('../flux/UserActions');
+
+var _UserActions2 = _interopRequireDefault(_UserActions);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1041,37 +1094,120 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var MessagePanel = function (_Component) {
     _inherits(MessagePanel, _Component);
 
-    function MessagePanel() {
+    function MessagePanel(props) {
         _classCallCheck(this, MessagePanel);
 
-        return _possibleConstructorReturn(this, (MessagePanel.__proto__ || Object.getPrototypeOf(MessagePanel)).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, (MessagePanel.__proto__ || Object.getPrototypeOf(MessagePanel)).call(this, props));
+
+        _this.state = {
+            currentUser: _UserStore2.default.getCurrentUser(),
+            activeFriend: _UserStore2.default.getActiveFriend(),
+            dialog: _UserStore2.default.getDialog()
+        };
+        _UserStore2.default.addListener('change', function () {
+            _this.setState({
+                currentUser: _UserStore2.default.getCurrentUser(),
+                dialog: _UserStore2.default.getDialog()
+            });
+        });
+
+        _UserStore2.default.addListener('changeActiveFriend', function () {
+            _this.setState({
+                activeFriend: _UserStore2.default.getActiveFriend(),
+                dialog: _UserStore2.default.getDialog()
+            });
+        });
+        return _this;
     }
 
     _createClass(MessagePanel, [{
-        key: "render",
+        key: '_sendMessage',
+        value: function _sendMessage() {
+            var objMessage = this.refs.sendMessageForm.getData();
+            var currentUser = this.state.currentUser;
+            var activeFriend = this.state.activeFriend;
+            //console.log('objMessage: ', objMessage);
+            //console.log('currentUser: ', currentUser);
+            //console.log('activeFriend: ', activeFriend);
+            if (activeFriend) {
+                _UserActions2.default.sendMessage(currentUser, activeFriend, objMessage);
+            }
+        }
+    }, {
+        key: 'render',
         value: function render() {
+            var _this2 = this;
+
             return _react2.default.createElement(
-                "div",
-                { className: "MessagePanel" },
-                _react2.default.createElement("div", { className: "chat" }),
+                'div',
+                { className: 'MessagePanel' },
                 _react2.default.createElement(
-                    "div",
-                    { className: "footerMessagePanel" },
+                    'div',
+                    { className: 'chat' },
+                    this.state.dialog.map(function (objMessage) {
+                        var name = void 0;
+                        var message = void 0;
+                        var currentUser = _this2.state.currentUser;
+                        if (objMessage.ownerId === currentUser._id) {
+                            name = _this2.state.currentUser.firstname + ' ' + _this2.state.currentUser.lastname;
+                            return _react2.default.createElement(
+                                'div',
+                                null,
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { float: 'left' } },
+                                    _react2.default.createElement(
+                                        'p',
+                                        null,
+                                        name,
+                                        ': ',
+                                        objMessage.text
+                                    )
+                                ),
+                                _react2.default.createElement('div', { style: { clear: 'both' } })
+                            );
+                        } else {
+                            name = _this2.state.activeFriend.firstname + ' ' + _this2.state.activeFriend.lastname;
+                            return _react2.default.createElement(
+                                'div',
+                                null,
+                                _react2.default.createElement(
+                                    'div',
+                                    { style: { float: 'right' } },
+                                    _react2.default.createElement(
+                                        'p',
+                                        null,
+                                        objMessage.text,
+                                        ': ',
+                                        name
+                                    )
+                                ),
+                                _react2.default.createElement('div', { style: { clear: 'both' } })
+                            );
+                        }
+                    })
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'footerMessagePanel' },
                     _react2.default.createElement(
-                        "div",
+                        'div',
                         { style: { float: 'left' } },
-                        _react2.default.createElement("textarea", null)
+                        _react2.default.createElement(_Form2.default, {
+                            ref: 'sendMessageForm',
+                            fields: [{ label: 'Введите текст сообщения', type: 'text', id: 'message' }]
+                        })
                     ),
                     _react2.default.createElement(
-                        "div",
+                        'div',
                         { style: { float: 'right' } },
                         _react2.default.createElement(
-                            "button",
-                            null,
-                            "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C"
+                            _Button2.default,
+                            { onClick: this._sendMessage.bind(this) },
+                            '\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C'
                         )
                     ),
-                    _react2.default.createElement("div", { style: { clear: 'both' } })
+                    _react2.default.createElement('div', { style: { clear: 'both' } })
                 )
             );
         }
@@ -1081,7 +1217,7 @@ var MessagePanel = function (_Component) {
 }(_react.Component);
 
 exports.default = MessagePanel;
-},{"react":235}],14:[function(require,module,exports){
+},{"../flux/UserActions":18,"../flux/UserStore":19,"./Button":6,"./Form":8,"react":235}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1168,6 +1304,7 @@ var Messenger = function (_Component) {
         value: function componentDidMount() {
             socket.on('report', this._report);
             socket.on('newPossibleFriend', _UserActions2.default.getUserById.bind(_UserActions2.default));
+            socket.on('newMessage', _UserActions2.default.getDialog.bind(_UserActions2.default));
         }
     }, {
         key: '_renderPanels',
@@ -1964,6 +2101,27 @@ var UserActions = {
         }).catch(function (err) {
             return console.error(err);
         });
+    },
+    getDialog: function getDialog(currentUserId) {
+        _api2.default.getUserById(currentUserId).then(function (res) {
+            console.log('-----UserActions.getDialog-----');
+            console.log('-----Объект User пришел результат с сервера-----');
+            console.log(res.data);
+            _UserStore2.default.setUser(res.data);
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+    sendMessage: function sendMessage(currentUser, activeFriend, objMessage) {
+        _api2.default.sendMessage(currentUser, activeFriend, objMessage).then(function (res) {
+            console.log('-----UserActions.sendMessage-----');
+            console.log('-----Объект User с новым диалогом пришел с сервера-----');
+            console.log(res.data);
+            _UserStore2.default.setUser(res.data);
+            socket.emit('newMessage', { currentUserId: currentUser._id, activeFriendId: activeFriend._id });
+        }).catch(function (err) {
+            return console.error(err);
+        });
     }
 };
 
@@ -1982,6 +2140,8 @@ var emitter = new _fbemitter.EventEmitter();
 var possibleFriends = void 0;
 var searchFriends = void 0;
 var friends = void 0;
+var activeFriend = void 0;
+var dialog = void 0;
 var UserStore = {
     init: function init() {
         //currentUser = currentUser;
@@ -1999,9 +2159,32 @@ var UserStore = {
         possibleFriends = [];
         searchFriends = [];
         friends = [];
+        activeFriend = null;
+        dialog = [];
+    },
+    setActiveFriend: function setActiveFriend(friend) {
+        activeFriend = friend;
+        var posActiveFriend = currentUser.friends.map(function (item) {
+            return item.id;
+        }).indexOf(friend._id);
+        dialog = currentUser.friends[posActiveFriend].dialog;
+        console.log('UserStore.setActiveFriend: ', dialog);
+        emitter.emit('changeActiveFriend');
+    },
+    getDialog: function getDialog() {
+        if (activeFriend) {
+            var posActiveFriend = currentUser.friends.map(function (item) {
+                return item.id;
+            }).indexOf(activeFriend._id);
+            dialog = currentUser.friends[posActiveFriend].dialog;
+            return dialog;
+        }
+        return dialog;
+    },
+    getActiveFriend: function getActiveFriend() {
+        return activeFriend;
     },
     getCurrentUser: function getCurrentUser() {
-        //let currentUser = this.store.currentUser();            
         return currentUser;
     },
     setUser: function setUser(newUser) {

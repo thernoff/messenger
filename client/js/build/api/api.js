@@ -45,5 +45,8 @@ exports.default = {
     },
     deleteUser: function deleteUser(userId) {
         return _axios2.default.delete(_config.apiPrefix + '/user/' + userId);
+    },
+    sendMessage: function sendMessage(currentUser, activeFriend, objMessage) {
+        return _axios2.default.post(_config.apiPrefix + '/message/send/', { currentUser: currentUser, activeFriend: activeFriend, objMessage: objMessage });
     }
 };

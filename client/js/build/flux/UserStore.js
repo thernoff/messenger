@@ -11,6 +11,8 @@ var emitter = new _fbemitter.EventEmitter();
 var possibleFriends = void 0;
 var searchFriends = void 0;
 var friends = void 0;
+var activeFriend = void 0;
+var dialog = void 0;
 var UserStore = {
     init: function init() {
         //currentUser = currentUser;
@@ -28,9 +30,32 @@ var UserStore = {
         possibleFriends = [];
         searchFriends = [];
         friends = [];
+        activeFriend = null;
+        dialog = [];
+    },
+    setActiveFriend: function setActiveFriend(friend) {
+        activeFriend = friend;
+        var posActiveFriend = currentUser.friends.map(function (item) {
+            return item.id;
+        }).indexOf(friend._id);
+        dialog = currentUser.friends[posActiveFriend].dialog;
+        console.log('UserStore.setActiveFriend: ', dialog);
+        emitter.emit('changeActiveFriend');
+    },
+    getDialog: function getDialog() {
+        if (activeFriend) {
+            var posActiveFriend = currentUser.friends.map(function (item) {
+                return item.id;
+            }).indexOf(activeFriend._id);
+            dialog = currentUser.friends[posActiveFriend].dialog;
+            return dialog;
+        }
+        return dialog;
+    },
+    getActiveFriend: function getActiveFriend() {
+        return activeFriend;
     },
     getCurrentUser: function getCurrentUser() {
-        //let currentUser = this.store.currentUser();            
         return currentUser;
     },
     setUser: function setUser(newUser) {

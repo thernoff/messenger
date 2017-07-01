@@ -182,6 +182,50 @@ export function addToFriends(data) {
     });
 }
 
+export function sendMessage(data) {
+    let currentUserId = data.currentUser._id;
+    let activeFriendId = data.activeFriend._id;
+
+    let message = {};
+    message.text = data.objMessage.message;
+    message.time = new Date().getTime();
+
+    User.findById(activeFriendId, function(err, activeFriend){
+        message.ownerId = currentUserId;
+        message.indexNumber = 1;
+        let pos = activeFriend.friends.map((item) => { return item.id }).indexOf(currentUserId);
+
+        activeFriend.friends[pos].dialog.push(message);;
+        console.log(activeFriend.friends[pos].dialog);
+        activeFriend.save(function(error) {
+            if (error){
+                console.log(error);
+            }            
+        });
+    });
+
+    let query = User.findById(currentUserId);
+
+    return query.exec(function(err, currentUser){
+        message.ownerId = currentUserId;
+        message.indexNumber = 1;
+        console.log(currentUser.friends);
+        let pos = currentUser.friends.map((item) => {return item.id}).indexOf(activeFriendId);
+        console.log(pos);
+        if (!currentUser.friends[pos].dialog){
+            currentUser.friends[activeFriendId].dialog = [];
+        }
+        
+        currentUser.friends[pos].dialog.push(message);;
+        console.log(currentUser.friends[pos].dialog);
+        currentUser.save(function(error) {
+            if (error){
+                console.log(error);
+            }            
+        });
+    });
+}
+
 export function deleteUser(id) {
     return User.findById(id).remove();
 }

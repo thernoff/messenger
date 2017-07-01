@@ -84,6 +84,7 @@ var Messenger = function (_Component) {
         value: function componentDidMount() {
             socket.on('report', this._report);
             socket.on('newPossibleFriend', _UserActions2.default.getUserById.bind(_UserActions2.default));
+            socket.on('newMessage', _UserActions2.default.getDialog.bind(_UserActions2.default));
         }
     }, {
         key: '_renderPanels',

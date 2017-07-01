@@ -133,6 +133,16 @@ app.delete('/user/:id', (req, res) => {
     db.deleteNote(req.params.id).then(data => res.send(data));
 });
 
+app.post('/message/send', (req, res) => {
+    db.sendMessage(req.body)
+        .then(
+            (data) => {
+                //console.log(data);
+                res.send(data);
+            }
+        );
+});
+
 const server = app.listen(serverPort, () => {
     console.log(`Server is up and running on port ${serverPort}`);
 });
@@ -157,6 +167,14 @@ io.sockets.on('connection', function(client){
         if (objClients[data.possibleFriendId]){
             let clientId = objClients[data.possibleFriendId];
             io.sockets.sockets[clientId].emit('newPossibleFriend', data.possibleFriendId);
+        }
+        
+    });
+
+    client.on('newMessage', function(data){
+        if (objClients[data.activeFriendId]){
+            let clientId = objClients[data.activeFriendId];
+            io.sockets.sockets[clientId].emit('newMessage', data.activeFriendId);
         }
         
     });

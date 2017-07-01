@@ -1,6 +1,11 @@
 .Avatar{
     display: inline-block;
     padding-right: 5px;
+    cursor: pointer;
+}
+
+.active{
+    border-bottom: 3px solid greenyellow;
 }
 
 .Avatar img.large{

@@ -22,7 +22,7 @@ class Messenger extends Component{
             errorPassword: false,
             errorEmail: false,
         };
-        UserStore.addListener('change', () => {            
+        UserStore.addListener('change', () => {
             this.setState({
                 possibleFriends: UserStore.getPossibleFriends(),
                 searchFriends: UserStore.getSearchFriends(),
@@ -32,8 +32,9 @@ class Messenger extends Component{
     }
 
     componentDidMount() {
-      socket.on('report', this._report);
-      socket.on('newPossibleFriend', UserActions.getUserById.bind(UserActions));
+        socket.on('report', this._report);
+        socket.on('newPossibleFriend', UserActions.getUserById.bind(UserActions));
+        socket.on('newMessage', UserActions.getDialog.bind(UserActions));
     }
 
     _renderPanels(){

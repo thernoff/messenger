@@ -29,6 +29,11 @@
 }.Avatar{
     display: inline-block;
     padding-right: 5px;
+    cursor: pointer;
+}
+
+.active{
+    border-bottom: 3px solid greenyellow;
 }
 
 .Avatar img.large{
@@ -221,7 +226,15 @@
 }
 
 .MessagePanel .footerMessagePanel textarea{
-    width: 350px;
+    width: 300px;
+}
+
+.MessagePanel .left{
+    float: left;
+}
+
+.MessagePanel .right{
+    float: right;
 }.Messenger{
     background-color: #fff;
 }/* thanks to https://css-tricks.com/star-ratings/ */

@@ -168,6 +168,27 @@ var UserActions = {
         }).catch(function (err) {
             return console.error(err);
         });
+    },
+    getDialog: function getDialog(currentUserId) {
+        _api2.default.getUserById(currentUserId).then(function (res) {
+            console.log('-----UserActions.getDialog-----');
+            console.log('-----Объект User пришел результат с сервера-----');
+            console.log(res.data);
+            _UserStore2.default.setUser(res.data);
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+    sendMessage: function sendMessage(currentUser, activeFriend, objMessage) {
+        _api2.default.sendMessage(currentUser, activeFriend, objMessage).then(function (res) {
+            console.log('-----UserActions.sendMessage-----');
+            console.log('-----Объект User с новым диалогом пришел с сервера-----');
+            console.log(res.data);
+            _UserStore2.default.setUser(res.data);
+            socket.emit('newMessage', { currentUserId: currentUser._id, activeFriendId: activeFriend._id });
+        }).catch(function (err) {
+            return console.error(err);
+        });
     }
 };
 
