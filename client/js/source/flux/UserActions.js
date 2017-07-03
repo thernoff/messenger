@@ -158,6 +158,60 @@ const UserActions = {
         );
     },
 
+    setOnlineFriend(friendOnlineId){
+        let friends = UserStore.getFriends();
+        let newFriend = friends.map((friend) => {
+            if (friend._id === friendOnlineId){
+                friend.online = true;
+            }
+            return friend;
+        });
+        UserStore.setFriends(newFriend);
+    },
+
+    setOfflineFriend(friendOfflineId){
+        let friends = UserStore.getFriends();
+        let newFriend = friends.map((friend) => {
+            if (friend._id === friendOfflineId){
+                friend.online = false;
+            }
+            return friend;
+        });
+        UserStore.setFriends(newFriend);
+    },
+
+    _preSearchData: null,
+
+    startFilter(){
+        this._preSearchFriends = UserStore.getFriends();
+    },
+
+    filter(e){
+        const target = e.target;
+        const needle = target.value.toLowerCase();
+
+        if (!needle){
+            UserStore.setFilterFriends([]);
+            //UserStore.setFriends(this._preSearchFriends);
+            return;
+        }
+
+        if (!this._preSearchFriends){
+            return;
+        }
+
+        const searchdata = this._preSearchFriends.filter(friend => {
+            let fullname = friend.firstname + ' ' + friend.lastname;
+            console.log('fullname: ', fullname);
+            if (fullname.toLowerCase().indexOf(needle) > -1){
+                return true;
+            }
+            return false;
+        });
+        console.log('searchdata: ', searchdata);
+        UserStore.setFilterFriends(searchdata);
+    },
+
     searchFriend(data){
         let search = data.search;
         api.searchUser(search)

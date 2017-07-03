@@ -37,7 +37,6 @@ var Avatar = function (_Component) {
         var _this = _possibleConstructorReturn(this, (Avatar.__proto__ || Object.getPrototypeOf(Avatar)).call(this, props));
 
         _this.state = {
-            test: props.test,
             id: props.id,
             src: props.src,
             title: props.title,
@@ -45,7 +44,7 @@ var Avatar = function (_Component) {
             size: props.size,
             form: props.form,
             active: props.active,
-            online: true
+            online: props.online
         };
         return _this;
     }
@@ -53,15 +52,15 @@ var Avatar = function (_Component) {
     _createClass(Avatar, [{
         key: 'render',
         value: function render() {
-            var online = this.state.online;
+            var online = this.props.online;
             return _react2.default.createElement(
                 'div',
                 { className: (0, _classnames2.default)('Avatar', { 'active': this.props.active }) },
-                _react2.default.createElement('img', { className: (0, _classnames2.default)(this.state.size, this.state.form, { 'online': online, 'offline': !online }),
-                    src: this.state.src,
-                    alt: this.state.alt,
-                    title: this.state.title,
-                    'data-id': this.state.id ? this.state.id : '',
+                _react2.default.createElement('img', { className: (0, _classnames2.default)(this.props.size, this.props.form, { 'online': online, 'offline': !online }),
+                    src: this.props.src,
+                    alt: this.props.alt,
+                    title: this.props.title,
+                    'data-id': this.props.id ? this.props.id : '',
                     onClick: this.props.onClick
                 })
             );

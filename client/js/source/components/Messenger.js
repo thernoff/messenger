@@ -32,23 +32,12 @@ class Messenger extends Component{
     }
 
     componentDidMount() {
-        socket.on('report', this._report);
         socket.on('newPossibleFriend', UserActions.getUserById.bind(UserActions));
         socket.on('newMessage', UserActions.getDialog.bind(UserActions));
+        socket.on('online', UserActions.setOnlineFriend.bind(UserActions));
+        socket.on('offline', UserActions.setOfflineFriend.bind(UserActions));
     }
 
-    _renderPanels(){
-        if (!this.state.currentUser){
-            return null;
-        }
-        return (
-            <div className="Panels">
-                <InfoPanel />
-                <FriendPanel />
-                <MessagePanel />
-            </div>
-        );
-    }
     //Метод отображающий форму авторизации
     _renderAuthForm(){
         return(
@@ -190,8 +179,6 @@ class Messenger extends Component{
         if (!emptyField){            
             data._id = this.state.currentUser._id;
             UserActions.updateUser(data);
-            //setTimeout(UserActions.getUserById.bind(this, this.state.currentUser._id), 1000);
-            
         }
     }
 

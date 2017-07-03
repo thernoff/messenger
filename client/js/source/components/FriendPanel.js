@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import Avatar from './Avatar';
 import Button from './Button';
 import UserStore from '../flux/UserStore';
+import UserActions from '../flux/UserActions';
 
 class FriendPanel extends Component{
     constructor(props) {
@@ -11,6 +12,7 @@ class FriendPanel extends Component{
             currentUser: UserStore.getCurrentUser(),
             friends: UserStore.getFriends(),
             activeFriend: UserStore.getActiveFriend(),
+            filterFriends: UserStore.getFilterFriends(),
         };
         UserStore.addListener('change', () => {
             //console.log(UserStore.getPossibleFriends());
@@ -26,6 +28,12 @@ class FriendPanel extends Component{
                 activeFriend: UserStore.getActiveFriend(),
             });
         });
+        UserStore.addListener('filterFriends', () => {
+            this.setState({
+                filterFriends: UserStore.getFilterFriends(),
+                activeFriend: UserStore.getActiveFriend(),
+            });
+        });
     }
 
     _renderFilterPanel(){
@@ -36,7 +44,12 @@ class FriendPanel extends Component{
                     <Button>Онлайн</Button>
                 </div>
                 <div style={{float: 'right'}}>
-                    <input />
+                    <div className="WhinepadToolbarSearch">
+                        <input 
+                        onChange={UserActions.filter.bind(UserActions)}
+                        onFocus={UserActions.startFilter.bind(UserActions)}
+                        />
+                    </div>
                 </div>
                 
                 <div style={{clear: 'both'}}></div>
@@ -60,16 +73,30 @@ class FriendPanel extends Component{
                         }
                         <h3>
                         {
+                            this.state.filterFriends.length > 0 ? this.state.filterFriends.map((friend) => {
+                                return <Avatar
+                                    active={ (this.state.activeFriend !== null && this.state.activeFriend._id === friend._id) }
+                                    size='small' 
+                                    form='round'
+                                    online={friend.online}
+                                    src={friend.mainImg} 
+                                    title={friend.firstname + ' ' + friend.lastname} 
+                                    alt={friend.login} 
+                                    id={friend._id}
+                                    onClick={() => {
+                                        UserStore.setActiveFriend(friend);
+                                    }}
+                                    />
+                            }, this) :
                             this.state.friends.map((friend) => {
                                 //console.log('this.state.activeFriend:', this.state.activeFriend);
                                 //console.log('friend:', friend);
                                 //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
-                                let test = this.state.activeFriend !== null ? this.state.activeFriend.login : this.state.activeFriend;
                                 return <Avatar
                                     active={ (this.state.activeFriend !== null && this.state.activeFriend._id === friend._id) }
-                                    test = { test }
                                     size='small' 
-                                    form='round' 
+                                    form='round'
+                                    online={friend.online}
                                     src={friend.mainImg} 
                                     title={friend.firstname + ' ' + friend.lastname} 
                                     alt={friend.login} 

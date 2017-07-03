@@ -88,10 +88,24 @@ app.post('/friends/get', (req, res) => {
     db.getFriends(req.body)
         .then(
             (data) => {
-                //console.log(data);
-                res.send(data);
+                let arrFriends = data.map((friend) => {
+                    if ( objClients[friend._id]){                        
+                        friend.online = true;
+                    }
+                    return friend;
+                });
+                //console.log(arrFriends);
+                res.send(arrFriends);
             }
         );
+});
+
+app.post('/friend/add', (req, res) => {
+    db.addToFriends(req.body)
+        .then( data => {
+            res.send(data);
+            })
+        .catch( ()=> res.send(null) );
 });
 
 app.post('/user/create', (req, res) => {
@@ -121,14 +135,6 @@ app.post('/user/update', (req, res) => {
     
 });
 
-app.post('/friend/add', (req, res) => {
-    db.addToFriends(req.body)
-        .then( data => {
-            res.send(data);
-            })
-        .catch( ()=> res.send(null) );
-});
-
 app.delete('/user/:id', (req, res) => {
     db.deleteNote(req.params.id).then(data => res.send(data));
 });
@@ -155,13 +161,12 @@ io.sockets.on('connection', function(client){
     //console.log('Connected:');
     //console.log(client.id);
     client.on('auth', function(currentUserId){
-        if (!objClients[client.id]){
+        if (!objClients[currentUserId]){
             //objClients[client.id] = userId;
             objClients[currentUserId] = client.id;
         }
-        
-        //client.emit('test', {data: data});
-        //console.log(objClients);
+        console.log('objClients: ', objClients);
+        io.sockets.emit('online', currentUserId);
     });
     client.on('update', function(data){
         if (objClients[data.possibleFriendId]){
@@ -180,7 +185,15 @@ io.sockets.on('connection', function(client){
     });
 
     client.on('disconnect', function () {
-        delete objClients[client.id];
+        let currentUserId;
+        for (let key in objClients) {
+            if (objClients[key] === client.id){
+                currentUserId = key;
+                delete objClients[key];
+            }
+        }        
+        console.log('objClients: ', objClients);
+        io.sockets.emit('offline', currentUserId);
         //io.sockets.emit('hello', {hello: 'Одно подключение потеряно.'});
         console.log('Client ' + client.id + ' disconnected');
     });

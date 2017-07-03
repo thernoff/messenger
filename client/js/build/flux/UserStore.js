@@ -9,6 +9,7 @@ var _fbemitter = require('fbemitter');
 var currentUser = void 0;
 var emitter = new _fbemitter.EventEmitter();
 var possibleFriends = void 0;
+var filterFriends = void 0;
 var searchFriends = void 0;
 var friends = void 0;
 var activeFriend = void 0;
@@ -30,8 +31,15 @@ var UserStore = {
         possibleFriends = [];
         searchFriends = [];
         friends = [];
-        activeFriend = null;
+        filterFriends = [], activeFriend = null;
         dialog = [];
+    },
+    setFilterFriends: function setFilterFriends(friends) {
+        filterFriends = friends;
+        emitter.emit('filterFriends');
+    },
+    getFilterFriends: function getFilterFriends() {
+        return filterFriends;
     },
     setActiveFriend: function setActiveFriend(friend) {
         activeFriend = friend;

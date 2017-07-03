@@ -151,6 +151,58 @@ var UserActions = {
             return console.error(err);
         });
     },
+    setOnlineFriend: function setOnlineFriend(friendOnlineId) {
+        var friends = _UserStore2.default.getFriends();
+        var newFriend = friends.map(function (friend) {
+            if (friend._id === friendOnlineId) {
+                friend.online = true;
+            }
+            return friend;
+        });
+        _UserStore2.default.setFriends(newFriend);
+    },
+    setOfflineFriend: function setOfflineFriend(friendOfflineId) {
+        var friends = _UserStore2.default.getFriends();
+        var newFriend = friends.map(function (friend) {
+            if (friend._id === friendOfflineId) {
+                friend.online = false;
+            }
+            return friend;
+        });
+        _UserStore2.default.setFriends(newFriend);
+    },
+
+
+    _preSearchData: null,
+
+    startFilter: function startFilter() {
+        this._preSearchFriends = _UserStore2.default.getFriends();
+    },
+    filter: function filter(e) {
+        var target = e.target;
+        var needle = target.value.toLowerCase();
+
+        if (!needle) {
+            _UserStore2.default.setFilterFriends([]);
+            //UserStore.setFriends(this._preSearchFriends);
+            return;
+        }
+
+        if (!this._preSearchFriends) {
+            return;
+        }
+
+        var searchdata = this._preSearchFriends.filter(function (friend) {
+            var fullname = friend.firstname + ' ' + friend.lastname;
+            console.log('fullname: ', fullname);
+            if (fullname.toLowerCase().indexOf(needle) > -1) {
+                return true;
+            }
+            return false;
+        });
+        console.log('searchdata: ', searchdata);
+        _UserStore2.default.setFilterFriends(searchdata);
+    },
     searchFriend: function searchFriend(data) {
         var search = data.search;
         _api2.default.searchUser(search).then(function (res) {

@@ -334,7 +334,6 @@ var Avatar = function (_Component) {
         var _this = _possibleConstructorReturn(this, (Avatar.__proto__ || Object.getPrototypeOf(Avatar)).call(this, props));
 
         _this.state = {
-            test: props.test,
             id: props.id,
             src: props.src,
             title: props.title,
@@ -342,7 +341,7 @@ var Avatar = function (_Component) {
             size: props.size,
             form: props.form,
             active: props.active,
-            online: true
+            online: props.online
         };
         return _this;
     }
@@ -350,15 +349,15 @@ var Avatar = function (_Component) {
     _createClass(Avatar, [{
         key: 'render',
         value: function render() {
-            var online = this.state.online;
+            var online = this.props.online;
             return _react2.default.createElement(
                 'div',
                 { className: (0, _classnames2.default)('Avatar', { 'active': this.props.active }) },
-                _react2.default.createElement('img', { className: (0, _classnames2.default)(this.state.size, this.state.form, { 'online': online, 'offline': !online }),
-                    src: this.state.src,
-                    alt: this.state.alt,
-                    title: this.state.title,
-                    'data-id': this.state.id ? this.state.id : '',
+                _react2.default.createElement('img', { className: (0, _classnames2.default)(this.props.size, this.props.form, { 'online': online, 'offline': !online }),
+                    src: this.props.src,
+                    alt: this.props.alt,
+                    title: this.props.title,
+                    'data-id': this.props.id ? this.props.id : '',
                     onClick: this.props.onClick
                 })
             );
@@ -768,6 +767,10 @@ var _UserStore = require('../flux/UserStore');
 
 var _UserStore2 = _interopRequireDefault(_UserStore);
 
+var _UserActions = require('../flux/UserActions');
+
+var _UserActions2 = _interopRequireDefault(_UserActions);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -788,7 +791,8 @@ var FriendPanel = function (_Component) {
             possibleFriends: _UserStore2.default.getPossibleFriends(),
             currentUser: _UserStore2.default.getCurrentUser(),
             friends: _UserStore2.default.getFriends(),
-            activeFriend: _UserStore2.default.getActiveFriend()
+            activeFriend: _UserStore2.default.getActiveFriend(),
+            filterFriends: _UserStore2.default.getFilterFriends()
         };
         _UserStore2.default.addListener('change', function () {
             //console.log(UserStore.getPossibleFriends());
@@ -801,6 +805,12 @@ var FriendPanel = function (_Component) {
         _UserStore2.default.addListener('changeActiveFriend', function () {
             _this.setState({
                 friends: _UserStore2.default.getFriends(),
+                activeFriend: _UserStore2.default.getActiveFriend()
+            });
+        });
+        _UserStore2.default.addListener('filterFriends', function () {
+            _this.setState({
+                filterFriends: _UserStore2.default.getFilterFriends(),
                 activeFriend: _UserStore2.default.getActiveFriend()
             });
         });
@@ -830,7 +840,14 @@ var FriendPanel = function (_Component) {
                 _react2.default.createElement(
                     'div',
                     { style: { float: 'right' } },
-                    _react2.default.createElement('input', null)
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'WhinepadToolbarSearch' },
+                        _react2.default.createElement('input', {
+                            onChange: _UserActions2.default.filter.bind(_UserActions2.default),
+                            onFocus: _UserActions2.default.startFilter.bind(_UserActions2.default)
+                        })
+                    )
                 ),
                 _react2.default.createElement('div', { style: { clear: 'both' } })
             );
@@ -871,16 +888,29 @@ var FriendPanel = function (_Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            this.state.friends.map(function (friend) {
+                            this.state.filterFriends.length > 0 ? this.state.filterFriends.map(function (friend) {
+                                return _react2.default.createElement(_Avatar2.default, {
+                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
+                                    size: 'small',
+                                    form: 'round',
+                                    online: friend.online,
+                                    src: friend.mainImg,
+                                    title: friend.firstname + ' ' + friend.lastname,
+                                    alt: friend.login,
+                                    id: friend._id,
+                                    onClick: function onClick() {
+                                        _UserStore2.default.setActiveFriend(friend);
+                                    }
+                                });
+                            }, this) : this.state.friends.map(function (friend) {
                                 //console.log('this.state.activeFriend:', this.state.activeFriend);
                                 //console.log('friend:', friend);
                                 //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
-                                var test = _this2.state.activeFriend !== null ? _this2.state.activeFriend.login : _this2.state.activeFriend;
                                 return _react2.default.createElement(_Avatar2.default, {
                                     active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
-                                    test: test,
                                     size: 'small',
                                     form: 'round',
+                                    online: friend.online,
                                     src: friend.mainImg,
                                     title: friend.firstname + ' ' + friend.lastname,
                                     alt: friend.login,
@@ -906,7 +936,7 @@ var FriendPanel = function (_Component) {
 }(_react.Component);
 
 exports.default = FriendPanel;
-},{"../flux/UserStore":19,"./Avatar":5,"./Button":6,"react":235}],11:[function(require,module,exports){
+},{"../flux/UserActions":18,"../flux/UserStore":19,"./Avatar":5,"./Button":6,"react":235}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1302,24 +1332,12 @@ var Messenger = function (_Component) {
     _createClass(Messenger, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            socket.on('report', this._report);
             socket.on('newPossibleFriend', _UserActions2.default.getUserById.bind(_UserActions2.default));
             socket.on('newMessage', _UserActions2.default.getDialog.bind(_UserActions2.default));
+            socket.on('online', _UserActions2.default.setOnlineFriend.bind(_UserActions2.default));
+            socket.on('offline', _UserActions2.default.setOfflineFriend.bind(_UserActions2.default));
         }
-    }, {
-        key: '_renderPanels',
-        value: function _renderPanels() {
-            if (!this.state.currentUser) {
-                return null;
-            }
-            return _react2.default.createElement(
-                'div',
-                { className: 'Panels' },
-                _react2.default.createElement(_InfoPanel2.default, null),
-                _react2.default.createElement(_FriendPanel2.default, null),
-                _react2.default.createElement(_MessagePanel2.default, null)
-            );
-        }
+
         //Метод отображающий форму авторизации
 
     }, {
@@ -1473,7 +1491,6 @@ var Messenger = function (_Component) {
             if (!emptyField) {
                 data._id = this.state.currentUser._id;
                 _UserActions2.default.updateUser(data);
-                //setTimeout(UserActions.getUserById.bind(this, this.state.currentUser._id), 1000);
             }
         }
 
@@ -2084,6 +2101,58 @@ var UserActions = {
             return console.error(err);
         });
     },
+    setOnlineFriend: function setOnlineFriend(friendOnlineId) {
+        var friends = _UserStore2.default.getFriends();
+        var newFriend = friends.map(function (friend) {
+            if (friend._id === friendOnlineId) {
+                friend.online = true;
+            }
+            return friend;
+        });
+        _UserStore2.default.setFriends(newFriend);
+    },
+    setOfflineFriend: function setOfflineFriend(friendOfflineId) {
+        var friends = _UserStore2.default.getFriends();
+        var newFriend = friends.map(function (friend) {
+            if (friend._id === friendOfflineId) {
+                friend.online = false;
+            }
+            return friend;
+        });
+        _UserStore2.default.setFriends(newFriend);
+    },
+
+
+    _preSearchData: null,
+
+    startFilter: function startFilter() {
+        this._preSearchFriends = _UserStore2.default.getFriends();
+    },
+    filter: function filter(e) {
+        var target = e.target;
+        var needle = target.value.toLowerCase();
+
+        if (!needle) {
+            _UserStore2.default.setFilterFriends([]);
+            //UserStore.setFriends(this._preSearchFriends);
+            return;
+        }
+
+        if (!this._preSearchFriends) {
+            return;
+        }
+
+        var searchdata = this._preSearchFriends.filter(function (friend) {
+            var fullname = friend.firstname + ' ' + friend.lastname;
+            console.log('fullname: ', fullname);
+            if (fullname.toLowerCase().indexOf(needle) > -1) {
+                return true;
+            }
+            return false;
+        });
+        console.log('searchdata: ', searchdata);
+        _UserStore2.default.setFilterFriends(searchdata);
+    },
     searchFriend: function searchFriend(data) {
         var search = data.search;
         _api2.default.searchUser(search).then(function (res) {
@@ -2138,6 +2207,7 @@ var _fbemitter = require('fbemitter');
 var currentUser = void 0;
 var emitter = new _fbemitter.EventEmitter();
 var possibleFriends = void 0;
+var filterFriends = void 0;
 var searchFriends = void 0;
 var friends = void 0;
 var activeFriend = void 0;
@@ -2159,8 +2229,15 @@ var UserStore = {
         possibleFriends = [];
         searchFriends = [];
         friends = [];
-        activeFriend = null;
+        filterFriends = [], activeFriend = null;
         dialog = [];
+    },
+    setFilterFriends: function setFilterFriends(friends) {
+        filterFriends = friends;
+        emitter.emit('filterFriends');
+    },
+    getFilterFriends: function getFilterFriends() {
+        return filterFriends;
     },
     setActiveFriend: function setActiveFriend(friend) {
         activeFriend = friend;

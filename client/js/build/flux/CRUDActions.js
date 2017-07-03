@@ -36,7 +36,7 @@ var CRUDActions = {
     _preSearchData: null,
 
     startSearching: function startSearching() {
-        this._preSearchData = _CRUDStore2.default.getDate();
+        this._preSearchData = _CRUDStore2.default.getData();
     },
     search: function search(e) {
         var target = e.target;

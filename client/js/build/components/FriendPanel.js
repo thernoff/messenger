@@ -22,6 +22,10 @@ var _UserStore = require('../flux/UserStore');
 
 var _UserStore2 = _interopRequireDefault(_UserStore);
 
+var _UserActions = require('../flux/UserActions');
+
+var _UserActions2 = _interopRequireDefault(_UserActions);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -42,7 +46,8 @@ var FriendPanel = function (_Component) {
             possibleFriends: _UserStore2.default.getPossibleFriends(),
             currentUser: _UserStore2.default.getCurrentUser(),
             friends: _UserStore2.default.getFriends(),
-            activeFriend: _UserStore2.default.getActiveFriend()
+            activeFriend: _UserStore2.default.getActiveFriend(),
+            filterFriends: _UserStore2.default.getFilterFriends()
         };
         _UserStore2.default.addListener('change', function () {
             //console.log(UserStore.getPossibleFriends());
@@ -55,6 +60,12 @@ var FriendPanel = function (_Component) {
         _UserStore2.default.addListener('changeActiveFriend', function () {
             _this.setState({
                 friends: _UserStore2.default.getFriends(),
+                activeFriend: _UserStore2.default.getActiveFriend()
+            });
+        });
+        _UserStore2.default.addListener('filterFriends', function () {
+            _this.setState({
+                filterFriends: _UserStore2.default.getFilterFriends(),
                 activeFriend: _UserStore2.default.getActiveFriend()
             });
         });
@@ -84,7 +95,14 @@ var FriendPanel = function (_Component) {
                 _react2.default.createElement(
                     'div',
                     { style: { float: 'right' } },
-                    _react2.default.createElement('input', null)
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'WhinepadToolbarSearch' },
+                        _react2.default.createElement('input', {
+                            onChange: _UserActions2.default.filter.bind(_UserActions2.default),
+                            onFocus: _UserActions2.default.startFilter.bind(_UserActions2.default)
+                        })
+                    )
                 ),
                 _react2.default.createElement('div', { style: { clear: 'both' } })
             );
@@ -125,16 +143,29 @@ var FriendPanel = function (_Component) {
                         _react2.default.createElement(
                             'h3',
                             null,
-                            this.state.friends.map(function (friend) {
+                            this.state.filterFriends.length > 0 ? this.state.filterFriends.map(function (friend) {
+                                return _react2.default.createElement(_Avatar2.default, {
+                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
+                                    size: 'small',
+                                    form: 'round',
+                                    online: friend.online,
+                                    src: friend.mainImg,
+                                    title: friend.firstname + ' ' + friend.lastname,
+                                    alt: friend.login,
+                                    id: friend._id,
+                                    onClick: function onClick() {
+                                        _UserStore2.default.setActiveFriend(friend);
+                                    }
+                                });
+                            }, this) : this.state.friends.map(function (friend) {
                                 //console.log('this.state.activeFriend:', this.state.activeFriend);
                                 //console.log('friend:', friend);
                                 //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
-                                var test = _this2.state.activeFriend !== null ? _this2.state.activeFriend.login : _this2.state.activeFriend;
                                 return _react2.default.createElement(_Avatar2.default, {
                                     active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
-                                    test: test,
                                     size: 'small',
                                     form: 'round',
+                                    online: friend.online,
                                     src: friend.mainImg,
                                     title: friend.firstname + ' ' + friend.lastname,
                                     alt: friend.login,

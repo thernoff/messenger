@@ -31,7 +31,7 @@ const CRUDActions = {
     _preSearchData: null,
 
     startSearching(){
-        this._preSearchData = CRUDStore.getDate();
+        this._preSearchData = CRUDStore.getData();
     },
 
     search(e: Event){

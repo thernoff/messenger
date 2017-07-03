@@ -82,24 +82,12 @@ var Messenger = function (_Component) {
     _createClass(Messenger, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            socket.on('report', this._report);
             socket.on('newPossibleFriend', _UserActions2.default.getUserById.bind(_UserActions2.default));
             socket.on('newMessage', _UserActions2.default.getDialog.bind(_UserActions2.default));
+            socket.on('online', _UserActions2.default.setOnlineFriend.bind(_UserActions2.default));
+            socket.on('offline', _UserActions2.default.setOfflineFriend.bind(_UserActions2.default));
         }
-    }, {
-        key: '_renderPanels',
-        value: function _renderPanels() {
-            if (!this.state.currentUser) {
-                return null;
-            }
-            return _react2.default.createElement(
-                'div',
-                { className: 'Panels' },
-                _react2.default.createElement(_InfoPanel2.default, null),
-                _react2.default.createElement(_FriendPanel2.default, null),
-                _react2.default.createElement(_MessagePanel2.default, null)
-            );
-        }
+
         //Метод отображающий форму авторизации
 
     }, {
@@ -253,7 +241,6 @@ var Messenger = function (_Component) {
             if (!emptyField) {
                 data._id = this.state.currentUser._id;
                 _UserActions2.default.updateUser(data);
-                //setTimeout(UserActions.getUserById.bind(this, this.state.currentUser._id), 1000);
             }
         }
 

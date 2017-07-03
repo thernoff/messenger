@@ -3,6 +3,7 @@ import {EventEmitter} from 'fbemitter';
 let currentUser;
 const emitter = new EventEmitter();
 let possibleFriends;
+let filterFriends;
 let searchFriends;
 let friends;
 let activeFriend;
@@ -24,8 +25,18 @@ const UserStore = {
         possibleFriends = [];
         searchFriends = [];
         friends = [];
+        filterFriends = [],
         activeFriend=null;
         dialog = [];
+    },
+
+    setFilterFriends(friends){
+        filterFriends = friends;
+        emitter.emit('filterFriends');
+    },
+
+    getFilterFriends(){
+        return filterFriends;
     },
 
     setActiveFriend(friend){

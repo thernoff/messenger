@@ -8,6 +8,7 @@ const UserSchema = new Schema({
     lastname: { type: String,  },
     password: { type: String },
     email: { type: String },
+    online: {type: Boolean, default: false},
     friends: [{id: String, dialog: [{text: String, time: Number, ownerId: String, indexNumber: Number}]}],
     possibleFriends: [{id: String}],
     mainImg: {type: String},

@@ -10,7 +10,6 @@ class Avatar extends Component{
         //console.log('===================/CONSTRUCTOR===================');
         super(props);
         this.state = {
-            test: props.test,
             id: props.id,
             src: props.src,
             title: props.title,
@@ -18,21 +17,21 @@ class Avatar extends Component{
             size: props.size,
             form: props.form,
             active: props.active,
-            online: true,
+            online: props.online,
         };
     }
 
     render(){
-        let online = this.state.online;
+        let online = this.props.online;
         return (
             <div className={classNames('Avatar', {'active' : this.props.active})} >
                 <img className={classNames(
-                        this.state.size, this.state.form, {'online' : online, 'offline': !online}
+                        this.props.size, this.props.form, {'online' : online, 'offline': !online}
                     )} 
-                    src={this.state.src}
-                    alt={this.state.alt}
-                    title={this.state.title}
-                    data-id={this.state.id ? this.state.id : ''}
+                    src={this.props.src}
+                    alt={this.props.alt}
+                    title={this.props.title}
+                    data-id={this.props.id ? this.props.id : ''}
                     onClick={this.props.onClick}
                 />
             </div>
