@@ -182,11 +182,11 @@ const UserActions = {
 
     _preSearchData: null,
 
-    startFilter(){
+    startFilterSearch(){
         this._preSearchFriends = UserStore.getFriends();
     },
 
-    filter(e){
+    filterSearch(e){
         const target = e.target;
         const needle = target.value.toLowerCase();
 
@@ -202,14 +202,32 @@ const UserActions = {
 
         const searchdata = this._preSearchFriends.filter(friend => {
             let fullname = friend.firstname + ' ' + friend.lastname;
-            console.log('fullname: ', fullname);
+            //console.log('fullname: ', fullname);
             if (fullname.toLowerCase().indexOf(needle) > -1){
                 return true;
             }
             return false;
         });
-        console.log('searchdata: ', searchdata);
+        //console.log('searchdata: ', searchdata);
         UserStore.setFilterFriends(searchdata);
+    },
+
+    showOnlineFriends(){
+        this._preSearchFriends = UserStore.getFriends();
+        if (!this._preSearchFriends){
+            return;
+        }
+        const searchdata = this._preSearchFriends.filter(friend => {
+            if (friend.online){
+                return true;
+            }
+            return false;
+        });
+        UserStore.setFilterFriends(searchdata);
+    },
+
+    showAllFriends(){
+        UserStore.setFilterFriends([]);
     },
 
     searchFriend(data){

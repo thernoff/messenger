@@ -828,12 +828,12 @@ var FriendPanel = function (_Component) {
                     { style: { float: 'left' } },
                     _react2.default.createElement(
                         _Button2.default,
-                        null,
+                        { onClick: _UserActions2.default.showAllFriends.bind(_UserActions2.default) },
                         '\u0412\u0441\u0435'
                     ),
                     _react2.default.createElement(
                         _Button2.default,
-                        null,
+                        { onClick: _UserActions2.default.showOnlineFriends.bind(_UserActions2.default) },
                         '\u041E\u043D\u043B\u0430\u0439\u043D'
                     )
                 ),
@@ -844,8 +844,8 @@ var FriendPanel = function (_Component) {
                         'div',
                         { className: 'WhinepadToolbarSearch' },
                         _react2.default.createElement('input', {
-                            onChange: _UserActions2.default.filter.bind(_UserActions2.default),
-                            onFocus: _UserActions2.default.startFilter.bind(_UserActions2.default)
+                            onChange: _UserActions2.default.filterSearch.bind(_UserActions2.default),
+                            onFocus: _UserActions2.default.startFilterSearch.bind(_UserActions2.default)
                         })
                     )
                 ),
@@ -1019,17 +1019,18 @@ var InfoPanel = function (_Component) {
                     _react2.default.createElement(
                         _Button2.default,
                         { onClick: this.props.onEdit },
-                        'Edit'
+                        _react2.default.createElement('i', { className: 'fa fa-pencil-square-o', 'aria-hidden': 'true' })
                     ),
                     _react2.default.createElement(
                         _Button2.default,
                         { onClick: this.props.onAdd },
-                        'Add'
+                        _react2.default.createElement('i', { className: 'fa fa-search-plus', 'aria-hidden': 'true' })
                     ),
                     _react2.default.createElement(
                         _Button2.default,
                         { onClick: this.props.onNew },
-                        'New (',
+                        _react2.default.createElement('i', { className: 'fa fa-user', 'aria-hidden': 'true' }),
+                        ' (+',
                         this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length,
                         ')'
                     )
@@ -2125,10 +2126,10 @@ var UserActions = {
 
     _preSearchData: null,
 
-    startFilter: function startFilter() {
+    startFilterSearch: function startFilterSearch() {
         this._preSearchFriends = _UserStore2.default.getFriends();
     },
-    filter: function filter(e) {
+    filterSearch: function filterSearch(e) {
         var target = e.target;
         var needle = target.value.toLowerCase();
 
@@ -2144,14 +2145,30 @@ var UserActions = {
 
         var searchdata = this._preSearchFriends.filter(function (friend) {
             var fullname = friend.firstname + ' ' + friend.lastname;
-            console.log('fullname: ', fullname);
+            //console.log('fullname: ', fullname);
             if (fullname.toLowerCase().indexOf(needle) > -1) {
                 return true;
             }
             return false;
         });
-        console.log('searchdata: ', searchdata);
+        //console.log('searchdata: ', searchdata);
         _UserStore2.default.setFilterFriends(searchdata);
+    },
+    showOnlineFriends: function showOnlineFriends() {
+        this._preSearchFriends = _UserStore2.default.getFriends();
+        if (!this._preSearchFriends) {
+            return;
+        }
+        var searchdata = this._preSearchFriends.filter(function (friend) {
+            if (friend.online) {
+                return true;
+            }
+            return false;
+        });
+        _UserStore2.default.setFilterFriends(searchdata);
+    },
+    showAllFriends: function showAllFriends() {
+        _UserStore2.default.setFilterFriends([]);
     },
     searchFriend: function searchFriend(data) {
         var search = data.search;

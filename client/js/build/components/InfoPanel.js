@@ -80,17 +80,18 @@ var InfoPanel = function (_Component) {
                     _react2.default.createElement(
                         _Button2.default,
                         { onClick: this.props.onEdit },
-                        'Edit'
+                        _react2.default.createElement('i', { className: 'fa fa-pencil-square-o', 'aria-hidden': 'true' })
                     ),
                     _react2.default.createElement(
                         _Button2.default,
                         { onClick: this.props.onAdd },
-                        'Add'
+                        _react2.default.createElement('i', { className: 'fa fa-search-plus', 'aria-hidden': 'true' })
                     ),
                     _react2.default.createElement(
                         _Button2.default,
                         { onClick: this.props.onNew },
-                        'New (',
+                        _react2.default.createElement('i', { className: 'fa fa-user', 'aria-hidden': 'true' }),
+                        ' (+',
                         this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length,
                         ')'
                     )

@@ -83,12 +83,12 @@ var FriendPanel = function (_Component) {
                     { style: { float: 'left' } },
                     _react2.default.createElement(
                         _Button2.default,
-                        null,
+                        { onClick: _UserActions2.default.showAllFriends.bind(_UserActions2.default) },
                         '\u0412\u0441\u0435'
                     ),
                     _react2.default.createElement(
                         _Button2.default,
-                        null,
+                        { onClick: _UserActions2.default.showOnlineFriends.bind(_UserActions2.default) },
                         '\u041E\u043D\u043B\u0430\u0439\u043D'
                     )
                 ),
@@ -99,8 +99,8 @@ var FriendPanel = function (_Component) {
                         'div',
                         { className: 'WhinepadToolbarSearch' },
                         _react2.default.createElement('input', {
-                            onChange: _UserActions2.default.filter.bind(_UserActions2.default),
-                            onFocus: _UserActions2.default.startFilter.bind(_UserActions2.default)
+                            onChange: _UserActions2.default.filterSearch.bind(_UserActions2.default),
+                            onFocus: _UserActions2.default.startFilterSearch.bind(_UserActions2.default)
                         })
                     )
                 ),

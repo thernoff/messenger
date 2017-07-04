@@ -175,10 +175,10 @@ var UserActions = {
 
     _preSearchData: null,
 
-    startFilter: function startFilter() {
+    startFilterSearch: function startFilterSearch() {
         this._preSearchFriends = _UserStore2.default.getFriends();
     },
-    filter: function filter(e) {
+    filterSearch: function filterSearch(e) {
         var target = e.target;
         var needle = target.value.toLowerCase();
 
@@ -194,14 +194,30 @@ var UserActions = {
 
         var searchdata = this._preSearchFriends.filter(function (friend) {
             var fullname = friend.firstname + ' ' + friend.lastname;
-            console.log('fullname: ', fullname);
+            //console.log('fullname: ', fullname);
             if (fullname.toLowerCase().indexOf(needle) > -1) {
                 return true;
             }
             return false;
         });
-        console.log('searchdata: ', searchdata);
+        //console.log('searchdata: ', searchdata);
         _UserStore2.default.setFilterFriends(searchdata);
+    },
+    showOnlineFriends: function showOnlineFriends() {
+        this._preSearchFriends = _UserStore2.default.getFriends();
+        if (!this._preSearchFriends) {
+            return;
+        }
+        var searchdata = this._preSearchFriends.filter(function (friend) {
+            if (friend.online) {
+                return true;
+            }
+            return false;
+        });
+        _UserStore2.default.setFilterFriends(searchdata);
+    },
+    showAllFriends: function showAllFriends() {
+        _UserStore2.default.setFilterFriends([]);
     },
     searchFriend: function searchFriend(data) {
         var search = data.search;

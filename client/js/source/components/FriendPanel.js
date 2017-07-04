@@ -40,14 +40,14 @@ class FriendPanel extends Component{
         return (
             <div className="FilterPanel">
                 <div style={{float: 'left'}}>
-                    <Button>Все</Button>
-                    <Button>Онлайн</Button>
+                    <Button onClick={UserActions.showAllFriends.bind(UserActions)}>Все</Button>
+                    <Button onClick={UserActions.showOnlineFriends.bind(UserActions)}>Онлайн</Button>
                 </div>
                 <div style={{float: 'right'}}>
                     <div className="WhinepadToolbarSearch">
                         <input 
-                        onChange={UserActions.filter.bind(UserActions)}
-                        onFocus={UserActions.startFilter.bind(UserActions)}
+                        onChange={UserActions.filterSearch.bind(UserActions)}
+                        onFocus={UserActions.startFilterSearch.bind(UserActions)}
                         />
                     </div>
                 </div>

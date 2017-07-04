@@ -28,9 +28,9 @@ class InfoPanel extends Component{
                 </div>
                 <div style={{float: 'right'}}>
                     <h2>{this.state.currentUser.firstname} {this.state.currentUser.lastname} ({this.state.currentUser.login})</h2>
-                    <Button onClick={this.props.onEdit}>Edit</Button>
-                    <Button onClick={this.props.onAdd}>Add</Button>
-                    <Button onClick={this.props.onNew}>New ({this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length})</Button>
+                    <Button onClick={this.props.onEdit}><i className="fa fa-pencil-square-o" aria-hidden="true"></i></Button>
+                    <Button onClick={this.props.onAdd}><i className="fa fa-search-plus" aria-hidden="true"></i></Button>
+                    <Button onClick={this.props.onNew}><i className="fa fa-user" aria-hidden="true"></i> (+{this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length})</Button>
                 </div>
                 <div style={{clear: 'both'}}></div>
             </div>
