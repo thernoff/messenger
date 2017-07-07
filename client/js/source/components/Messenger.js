@@ -210,11 +210,43 @@ class Messenger extends Component{
         }
 
         let data = this.refs.addFriendForm.getData();
+        
         if (data){
+            console.log('Messenger._searchFriend data:', data);
             UserActions.searchFriend(data);
             this.setState({typeForm: 'listSearchFriends'});
         }
     }
+
+    //Метод отображает список пользователей, желающих добавиться в друзья
+    _renderUploadPhotoForm(){
+        let arrPossibleFriends = this.state.possibleFriends;
+        return(
+            <Dialog
+                modal={true}
+                header="Загрузка фотографии"
+                onAction={this._cancel.bind(this)}
+                hasCancel={false}
+            >
+                <form id="uploadForm" onsubmit="return false;">
+                    <div className="form-group">
+                        <input id="file" type="file" className="form-control"/>
+                    </div>
+                </form>
+                <Button onClick={this._uploadPhoto.bind(this)}>Upload</Button>
+            </Dialog>
+        );
+    }
+
+_uploadPhoto(){
+    //let uploadForm = document.getElementById('uploadForm');
+    let data = new FormData();
+    let currentUser = UserStore.getCurrentUser();
+    data.append('currentUserId', currentUser._id);
+    data.append('photo', document.getElementById('file').files[0]);
+    UserActions.uploadPhoto(data);
+}
+
 //Метод отображает список пользователей, желающих добавиться в друзья
     _renderNewFriendList(){
         let arrPossibleFriends = this.state.possibleFriends;
@@ -251,7 +283,7 @@ class Messenger extends Component{
         }
     
     _renderSearchPossibleFriendList(){
-        let arrSearchFriends = this.state.searchFriends;
+        let arrSearchFriends = this.state.searchFriends ? this.state.searchFriends : [];
         return(
             <Dialog
                 modal={true}
@@ -260,14 +292,16 @@ class Messenger extends Component{
                 hasCancel={false}
             >
                 {
-                    arrSearchFriends.map((friend, idx) => 
-                        {
-                            console.log('FRIEND', friend);
-                            return (
-                                <p>{friend.firstname} {friend.lastname} <Button onClick={this._sendRequestAddToFriends.bind(this, friend)}>+</Button></p>
-                            );
-                        }
-                    )
+                    arrSearchFriends.length > 0 
+                        ? arrSearchFriends.map((friend, idx) => 
+                            {
+                                console.log('FRIEND', friend);
+                                return (
+                                    <p>{friend.firstname} {friend.lastname} <Button onClick={this._sendRequestAddToFriends.bind(this, friend)}>+</Button></p>
+                                );
+                            }
+                        )
+                        : <p>Список пуст</p>
                 }
             </Dialog>
         );
@@ -291,8 +325,9 @@ class Messenger extends Component{
             <div className="Messenger">
 
                 <div className="Panels">
-                    <InfoPanel 
-                        onEdit={this._actionClick.bind(this, 'editForm')} 
+                    <InfoPanel
+                        onUploadPhoto={this._actionClick.bind(this, 'uploadPhotoForm')}
+                        onEdit={this._actionClick.bind(this, 'editForm')}
                         onAdd={this._actionClick.bind(this, 'searchFriendForm')}
                         onNew={this._actionClick.bind(this, 'newFriendsList')}
                     />
@@ -322,6 +357,8 @@ class Messenger extends Component{
 
     _renderForm(){
         switch (this.state.typeForm){
+            case 'uploadPhotoForm':
+                return this._renderUploadPhotoForm();
             case 'newFriendsList':
                 return this._renderNewFriendList();
             case 'listSearchFriends':

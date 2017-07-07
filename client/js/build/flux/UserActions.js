@@ -183,7 +183,9 @@ var UserActions = {
         var needle = target.value.toLowerCase();
 
         if (!needle) {
-            _UserStore2.default.setFilterFriends([]);
+            var friends = _UserStore2.default.getFriends();
+            _UserStore2.default.setFriends(friends);
+            //UserStore.setFilterFriends([]);
             //UserStore.setFriends(this._preSearchFriends);
             return;
         }
@@ -217,12 +219,13 @@ var UserActions = {
         _UserStore2.default.setFilterFriends(searchdata);
     },
     showAllFriends: function showAllFriends() {
-        _UserStore2.default.setFilterFriends([]);
+        var friends = _UserStore2.default.getFriends();
+        _UserStore2.default.setFriends(friends);
     },
     searchFriend: function searchFriend(data) {
         var search = data.search;
         _api2.default.searchUser(search).then(function (res) {
-            //console.log(res.data);
+            console.log('UserActions.searchFriend: ', res.data);
             _UserStore2.default.setSearchFriends(res.data);
         }).catch(function (err) {
             return console.error(err);
@@ -254,6 +257,22 @@ var UserActions = {
             console.log(res.data);
             _UserStore2.default.setUser(res.data);
             socket.emit('newMessage', { currentUserId: currentUser._id, activeFriendId: activeFriend._id });
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+    setActiveFriend: function setActiveFriend(activeFriend) {
+        var currentUser = _UserStore2.default.getCurrentUser();
+        //console.log('currentUser: ',currentUser);
+        //console.log('activeFriend: ',activeFriend);
+        _api2.default.resetNumNewMessage(currentUser, activeFriend).then(function (res) {
+            _UserStore2.default.setUser(res.data);
+        });
+        _UserStore2.default.setActiveFriend(activeFriend);
+    },
+    uploadPhoto: function uploadPhoto(data) {
+        _api2.default.uploadPhoto(data).then(function (res) {
+            _UserStore2.default.setUser(res.data);
         }).catch(function (err) {
             return console.error(err);
         });

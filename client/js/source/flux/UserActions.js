@@ -191,7 +191,9 @@ const UserActions = {
         const needle = target.value.toLowerCase();
 
         if (!needle){
-            UserStore.setFilterFriends([]);
+            let friends = UserStore.getFriends();
+            UserStore.setFriends(friends);
+            //UserStore.setFilterFriends([]);
             //UserStore.setFriends(this._preSearchFriends);
             return;
         }
@@ -227,14 +229,15 @@ const UserActions = {
     },
 
     showAllFriends(){
-        UserStore.setFilterFriends([]);
+        let friends = UserStore.getFriends();
+        UserStore.setFriends(friends);
     },
 
     searchFriend(data){
         let search = data.search;
         api.searchUser(search)
         .then( res => {
-            //console.log(res.data);
+            console.log('UserActions.searchFriend: ',res.data);
             UserStore.setSearchFriends(res.data);
         } )
         .catch(err => console.error(err));
@@ -275,7 +278,26 @@ const UserActions = {
             socket.emit('newMessage', {currentUserId: currentUser._id, activeFriendId: activeFriend._id});
         } )
         .catch(err => console.error(err));
-    }
+    },
+
+    setActiveFriend(activeFriend){
+        let currentUser = UserStore.getCurrentUser();
+        //console.log('currentUser: ',currentUser);
+        //console.log('activeFriend: ',activeFriend);
+        api.resetNumNewMessage(currentUser, activeFriend)
+        .then( res => {
+            UserStore.setUser(res.data);
+        } )
+        UserStore.setActiveFriend(activeFriend);
+    },
+
+    uploadPhoto(data){
+        api.uploadPhoto(data)
+        .then( res => {
+            UserStore.setUser(res.data);
+        } )
+        .catch(err => console.error(err));
+    },
 };
 
 export default UserActions;

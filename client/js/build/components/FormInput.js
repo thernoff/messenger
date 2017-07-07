@@ -63,6 +63,8 @@ var FormInput = function (_Component) {
             defaultValue: parseInt(this.props.defaultValue, 10) }));
         case 'text':
           return _react2.default.createElement('textarea', common);
+        case 'file':
+          return _react2.default.createElement('input', _extends({}, common, { type: 'file' }));
         default:
           if (this.props.error) {
             //return <input {...common} style={{border: '1px solid red'}} type="text" />;

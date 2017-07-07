@@ -48,5 +48,11 @@ exports.default = {
     },
     sendMessage: function sendMessage(currentUser, activeFriend, objMessage) {
         return _axios2.default.post(_config.apiPrefix + '/message/send/', { currentUser: currentUser, activeFriend: activeFriend, objMessage: objMessage });
+    },
+    resetNumNewMessage: function resetNumNewMessage(currentUser, activeFriend) {
+        return _axios2.default.post(_config.apiPrefix + '/message/reset/', { currentUserId: currentUser._id, activeFriendId: activeFriend._id });
+    },
+    uploadPhoto: function uploadPhoto(data) {
+        return _axios2.default.put(_config.apiPrefix + '/upload/server/', data);
     }
 };

@@ -195,8 +195,9 @@ export function sendMessage(data) {
         message.indexNumber = 1;
         let pos = activeFriend.friends.map((item) => { return item.id }).indexOf(currentUserId);
 
-        activeFriend.friends[pos].dialog.push(message);;
-        console.log(activeFriend.friends[pos].dialog);
+        activeFriend.friends[pos].dialog.push(message);
+        activeFriend.friends[pos].numNewMessages++;
+        //console.log(activeFriend.friends[pos].dialog);
         activeFriend.save(function(error) {
             if (error){
                 console.log(error);
@@ -218,6 +219,26 @@ export function sendMessage(data) {
         
         currentUser.friends[pos].dialog.push(message);;
         console.log(currentUser.friends[pos].dialog);
+        currentUser.save(function(error) {
+            if (error){
+                console.log(error);
+            }            
+        });
+    });
+}
+
+export function resetNumNewMessage(data) {
+    let currentUserId = data.currentUserId;
+    let activeFriendId = data.activeFriendId;
+
+    let query = User.findById(currentUserId);
+
+    return query.exec(function(err, currentUser){
+        let pos = currentUser.friends.map((item) => {return item.id}).indexOf(activeFriendId);
+        console.log(pos);
+
+        
+        currentUser.friends[pos].numNewMessages = 0;
         currentUser.save(function(error) {
             if (error){
                 console.log(error);

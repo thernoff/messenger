@@ -12,6 +12,10 @@ var _Logo = require('./components/Logo');
 
 var _Logo2 = _interopRequireDefault(_Logo);
 
+var _Button = require('./components/Button');
+
+var _Button2 = _interopRequireDefault(_Button);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -40,8 +44,33 @@ _reactDom2.default.render(_react2.default.createElement(
   _react2.default.createElement(
     'div',
     { className: 'app-header' },
-    _react2.default.createElement(_Logo2.default, null),
-    ' FriendMessenger'
+    _react2.default.createElement(
+      'div',
+      { className: 'row' },
+      _react2.default.createElement(
+        'div',
+        { className: 'col-xs-3' },
+        _react2.default.createElement(_Logo2.default, null)
+      ),
+      _react2.default.createElement(
+        'div',
+        { className: 'col-xs-7' },
+        _react2.default.createElement(
+          'span',
+          { className: 'title' },
+          'FriendMessenger'
+        )
+      ),
+      _react2.default.createElement(
+        'div',
+        { className: 'col-xs-2' },
+        _react2.default.createElement(
+          _Button2.default,
+          { className: 'logout' },
+          _react2.default.createElement('i', { className: 'fa fa-sign-out', 'aria-hidden': 'true' })
+        )
+      )
+    )
   ),
   _react2.default.createElement(_Messenger2.default, null)
 ), document.getElementById('pad'));

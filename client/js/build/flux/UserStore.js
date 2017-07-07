@@ -14,6 +14,7 @@ var searchFriends = void 0;
 var friends = void 0;
 var activeFriend = void 0;
 var dialog = void 0;
+var mainImg = void 0;
 var UserStore = {
     init: function init() {
         //currentUser = currentUser;
@@ -25,7 +26,8 @@ var UserStore = {
             password: '',
             '_id': null,
             possibleFriends: [],
-            friends: []
+            friends: [],
+            mainImg: ''
         };
 
         possibleFriends = [];
@@ -47,7 +49,8 @@ var UserStore = {
             return item.id;
         }).indexOf(friend._id);
         dialog = currentUser.friends[posActiveFriend].dialog;
-        console.log('UserStore.setActiveFriend: ', dialog);
+        console.log('UserStore.setActiveFriend: activeFriend', activeFriend);
+        console.log('UserStore.setActiveFriend: dialog', dialog);
         emitter.emit('changeActiveFriend');
     },
     getDialog: function getDialog() {
@@ -104,6 +107,12 @@ var UserStore = {
     },
     addListener: function addListener(eventType, fn) {
         emitter.addListener(eventType, fn);
+    },
+    getMainImg: function getMainImg() {
+        if (currentUser.mainImg) {
+            return currentUser._id + '/' + currentUser.mainImg;
+        }
+        return 'no-avatar.jpg';
     }
 };
 

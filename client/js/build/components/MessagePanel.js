@@ -10,6 +10,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _Avatar = require('./Avatar');
+
+var _Avatar2 = _interopRequireDefault(_Avatar);
+
 var _Form = require('./Form');
 
 var _Form2 = _interopRequireDefault(_Form);
@@ -91,41 +95,56 @@ var MessagePanel = function (_Component) {
                         var name = void 0;
                         var message = void 0;
                         var currentUser = _this2.state.currentUser;
+                        var activeFriend = _this2.state.activeFriend;
                         if (objMessage.ownerId === currentUser._id) {
-                            name = _this2.state.currentUser.firstname + ' ' + _this2.state.currentUser.lastname;
+                            name = currentUser.firstname + ' ' + currentUser.lastname;
                             return _react2.default.createElement(
                                 'div',
-                                null,
+                                { className: 'row' },
                                 _react2.default.createElement(
                                     'div',
-                                    { style: { float: 'left' } },
+                                    { className: 'col-xs-2' },
                                     _react2.default.createElement(
-                                        'p',
-                                        null,
-                                        name,
-                                        ': ',
-                                        objMessage.text
-                                    )
-                                ),
-                                _react2.default.createElement('div', { style: { clear: 'both' } })
-                            );
-                        } else {
-                            name = _this2.state.activeFriend.firstname + ' ' + _this2.state.activeFriend.lastname;
-                            return _react2.default.createElement(
-                                'div',
-                                null,
-                                _react2.default.createElement(
-                                    'div',
-                                    { style: { float: 'right' } },
-                                    _react2.default.createElement(
-                                        'p',
-                                        null,
-                                        objMessage.text,
-                                        ': ',
+                                        'span',
+                                        { className: 'name-current-user' },
                                         name
                                     )
                                 ),
-                                _react2.default.createElement('div', { style: { clear: 'both' } })
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'col-xs-8' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'message-current-user' },
+                                        objMessage.text
+                                    )
+                                ),
+                                _react2.default.createElement('div', { className: 'col-xs-2' })
+                            );
+                        } else {
+                            name = activeFriend.firstname + ' ' + activeFriend.lastname;
+                            return _react2.default.createElement(
+                                'div',
+                                { className: 'row' },
+                                _react2.default.createElement('div', { className: 'col-xs-2' }),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'col-xs-8' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'message-active-friend' },
+                                        objMessage.text
+                                    )
+                                ),
+                                _react2.default.createElement(
+                                    'div',
+                                    { className: 'col-xs-2' },
+                                    _react2.default.createElement(
+                                        'span',
+                                        { className: 'name-active-friend' },
+                                        name
+                                    )
+                                )
                             );
                         }
                     })
@@ -135,22 +154,29 @@ var MessagePanel = function (_Component) {
                     { className: 'footerMessagePanel' },
                     _react2.default.createElement(
                         'div',
-                        { style: { float: 'left' } },
-                        _react2.default.createElement(_Form2.default, {
-                            ref: 'sendMessageForm',
-                            fields: [{ label: 'Введите текст сообщения', type: 'text', id: 'message' }]
-                        })
-                    ),
-                    _react2.default.createElement(
-                        'div',
-                        { style: { float: 'right' } },
+                        { className: 'row' },
                         _react2.default.createElement(
-                            _Button2.default,
-                            { onClick: this._sendMessage.bind(this) },
-                            '\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C'
+                            'div',
+                            { className: 'col-xs-11' },
+                            _react2.default.createElement(_Form2.default, {
+                                ref: 'sendMessageForm',
+                                fields: [{ label: 'Введите текст сообщения', type: 'text', id: 'message' }]
+                            })
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'col-xs-1' },
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { className: 'message-panel-send', onClick: this._sendMessage.bind(this) },
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    _react2.default.createElement('i', { className: 'fa fa-caret-square-o-right', 'aria-hidden': 'true' })
+                                )
+                            )
                         )
-                    ),
-                    _react2.default.createElement('div', { style: { clear: 'both' } })
+                    )
                 )
             );
         }

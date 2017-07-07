@@ -13,18 +13,24 @@ input, textarea {
 }
 
 .app-header {
-  background-color: #6F001B;
+  background-color: #5493d4;
   color: #F0F0F0;
   font-family: 'Norican', cursive;
   font-size: 25px;
   font-style: normal;
   font-weight: 900;
   margin: 0;
-  padding: 20px 20px 20px 14px;
+  padding: 20px 20px 10px 14px;
+  margin-bottom: 10px;
   vertical-align: middle;
 }
 
 .app{
-  width: 500px;
+  width: 480px;
   margin: 0 auto;
+  border: 1px solid #b3b3b3;
+}
+
+.app-header .title{
+  padding-left: 5px;
 }

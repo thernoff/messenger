@@ -9,6 +9,9 @@ import socket from 'socket.io';
 import expressHandlebars from 'express-handlebars';
 import credentials from './credentials.js';
 import cookieParser from 'cookie-parser';
+import formidable from 'formidable';
+import fs from 'fs';
+
 db.setUpConnection();
 
 const app = express();
@@ -55,6 +58,15 @@ app.post('/user/get', (req, res) => {
                 //res.cookie('userId', data._id, {httpOnly: true, signed: true});
                 //let user = db.getFullUser(data);
                 //console.log(user);
+                let arrObjIdsFriends = data.friends;
+                db.getFriends(arrObjIdsFriends)
+                .then(
+                    (arrFriends) => {
+                        console.log(arrFriends);
+                        data.friends = arrFriends;
+                        //res.send(data);
+                    });
+                //console.log(arrObjIdsFriends);
                 res.send(data);
             }
         )
@@ -121,10 +133,19 @@ app.get('/user/get/:id', (req, res) => {
         .catch( ()=> res.send(null) );
 });
 
+app.get('/user/search/', (req, res) => {
+    res.send(null);
+});
+
 app.get('/user/search/:search', (req, res) => {
-    db.searchUser(req.params.search)
+    if (req.params.search){
+        db.searchUser(req.params.search)
         .then( data => res.send(data) )
         .catch( ()=> res.send(null) );
+    }else{
+        res.send(null);
+    }
+    
 });
 
 app.post('/user/update', (req, res) => {
@@ -147,6 +168,58 @@ app.post('/message/send', (req, res) => {
                 res.send(data);
             }
         );
+});
+
+app.post('/message/reset', (req, res) => {
+    db.resetNumNewMessage(req.body)
+        .then(
+            (data) => {
+                //console.log(data);
+                res.send(data);
+            }
+        );
+});
+
+app.put('/upload/server/', (req, res) => {
+
+    var dataDir = __dirname + '/public';
+    var avatarPhotoDir = dataDir + '/avatars';
+    if(!fs.existsSync(dataDir)){
+        fs.mkdirSync(dataDir);
+    }
+    if(!fs.existsSync(avatarPhotoDir)){
+        fs.mkdirSync(avatarPhotoDir);
+    }
+
+    var form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files){
+        if(err){
+            res.send(null);
+        }
+        let photo = files.photo;
+        let currentUserId = fields.currentUserId;
+        let dir = 'public/avatars/' + currentUserId;
+        //var path = dir + '/' + photo.name;
+        if(!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+        //fs.mkdirSync(dir);
+        fs.renameSync(photo.path, dir + '/' + photo.name);
+        /*saveContestEntry('vacation-photo', fields.email, req.params.year, req.params.month, path);
+        req.session.flash = {
+            type: 'success',
+            intro: 'Удачи!',
+            message: 'Вы стали участником конкурса.',
+        };*/
+
+        db.updateUser({_id: currentUserId, mainImg: photo.name})
+            .then(
+                (data) => {
+                    //console.log(data);
+                    res.send(data);
+                }
+            ).catch( ()=> res.send(null) );
+    });
 });
 
 const server = app.listen(serverPort, () => {

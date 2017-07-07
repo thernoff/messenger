@@ -1,12 +1,25 @@
 .FriendPanel{
     margin-bottom: 10px;
+    border-top: 1px solid #b3b3b3;
+    border-bottom: 1px solid #b3b3b3;
+    padding: 5px 5px 0px 5px;
 }
 
-.FriendPanel .friend{
-    margin-left: 25px;
-    margin-right: 25px;
+.FriendPanel .avatar-list{
+    padding-top: 5px;
+}
+
+.FriendPanel .FilterPanel{
+    margin-bottom: 5px;
 }
 
 .FriendPanel .FilterPanel input{
+    margin-left: -5px;
     padding: 5px;
+}
+
+.FriendPanel div.friend-panel-info{
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
 }

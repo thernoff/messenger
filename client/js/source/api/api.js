@@ -51,4 +51,12 @@ export default {
     sendMessage(currentUser, activeFriend, objMessage){
         return axios.post(`${apiPrefix}/message/send/`, {currentUser: currentUser, activeFriend: activeFriend, objMessage: objMessage});
     },
+
+    resetNumNewMessage(currentUser, activeFriend){
+        return axios.post(`${apiPrefix}/message/reset/`, {currentUserId: currentUser._id, activeFriendId: activeFriend._id});
+    },
+
+    uploadPhoto(data){
+        return axios.put(`${apiPrefix}/upload/server/`, data);
+    }
 }

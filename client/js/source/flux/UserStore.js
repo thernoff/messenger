@@ -8,6 +8,7 @@ let searchFriends;
 let friends;
 let activeFriend;
 let dialog;
+let mainImg;
 const UserStore = {
     init(){
         //currentUser = currentUser;
@@ -20,6 +21,7 @@ const UserStore = {
             '_id': null,
             possibleFriends: [],
             friends: [],
+            mainImg: ''
         };
 
         possibleFriends = [];
@@ -43,7 +45,8 @@ const UserStore = {
         activeFriend = friend;
         let posActiveFriend = currentUser.friends.map((item) => {return item.id}).indexOf(friend._id);
         dialog = currentUser.friends[posActiveFriend].dialog;
-        console.log('UserStore.setActiveFriend: ', dialog);
+        console.log('UserStore.setActiveFriend: activeFriend', activeFriend);
+        console.log('UserStore.setActiveFriend: dialog', dialog);
         emitter.emit('changeActiveFriend');
     },
 
@@ -113,6 +116,13 @@ const UserStore = {
 
     addListener(eventType, fn){
         emitter.addListener(eventType, fn);
+    },
+
+    getMainImg(){
+        if (currentUser.mainImg){
+            return currentUser._id + '/' + currentUser.mainImg;
+        }
+        return 'no-avatar.jpg';
     }
 }
 

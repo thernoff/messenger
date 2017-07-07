@@ -55,14 +55,20 @@ var Avatar = function (_Component) {
             var online = this.props.online;
             return _react2.default.createElement(
                 'div',
-                { className: (0, _classnames2.default)('Avatar', { 'active': this.props.active }) },
-                _react2.default.createElement('img', { className: (0, _classnames2.default)(this.props.size, this.props.form, { 'online': online, 'offline': !online }),
+                { className: (0, _classnames2.default)('Avatar', { 'active': this.props.active, 'online': online, 'offline': !online }) },
+                _react2.default.createElement('img', { className: (0, _classnames2.default)(this.props.size, this.props.form),
                     src: this.props.src,
                     alt: this.props.alt,
                     title: this.props.title,
                     'data-id': this.props.id ? this.props.id : '',
                     onClick: this.props.onClick
-                })
+                }),
+                this.props.numNewMessages && this.props.numNewMessages > 0 ? _react2.default.createElement(
+                    'span',
+                    { className: 'num-new-messages' },
+                    '+',
+                    this.props.numNewMessages
+                ) : _react2.default.createElement('span', null)
             );
         }
     }]);

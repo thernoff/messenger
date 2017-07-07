@@ -40,14 +40,16 @@ var InfoPanel = function (_Component) {
 
         _this.state = {
             currentUser: _UserStore2.default.getCurrentUser(),
-            possibleFriends: _UserStore2.default.getPossibleFriends()
+            possibleFriends: _UserStore2.default.getPossibleFriends(),
+            mainImg: _UserStore2.default.getMainImg()
         };
         _UserStore2.default.addListener('change', function () {
             //let currentUser = UserStore.getCurrentUser();
             //console.log(currentUser);
             _this.setState({
                 currentUser: _UserStore2.default.getCurrentUser(),
-                possibleFriends: _UserStore2.default.getPossibleFriends()
+                possibleFriends: _UserStore2.default.getPossibleFriends(),
+                mainImg: _UserStore2.default.getMainImg()
             });
         });
         return _this;
@@ -61,42 +63,69 @@ var InfoPanel = function (_Component) {
                 { className: 'InfoPanel' },
                 _react2.default.createElement(
                     'div',
-                    { style: { float: 'left' } },
-                    _react2.default.createElement(_Avatar2.default, { size: 'medium', form: 'round', src: './avatars/aHr3Bhk5.jpg' })
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { style: { float: 'right' } },
+                    { className: 'row' },
                     _react2.default.createElement(
-                        'h2',
-                        null,
-                        this.state.currentUser.firstname,
-                        ' ',
-                        this.state.currentUser.lastname,
-                        ' (',
-                        this.state.currentUser.login,
-                        ')'
+                        'div',
+                        { className: 'col-xs-3' },
+                        _react2.default.createElement(_Avatar2.default, {
+                            size: 'medium',
+                            form: 'round',
+                            src: this.state.mainImg ? './avatars/' + this.state.mainImg : this.state.mainImg,
+                            onClick: this.props.onUploadPhoto
+                        })
                     ),
                     _react2.default.createElement(
-                        _Button2.default,
-                        { onClick: this.props.onEdit },
-                        _react2.default.createElement('i', { className: 'fa fa-pencil-square-o', 'aria-hidden': 'true' })
+                        'div',
+                        { className: 'col-xs-7' },
+                        _react2.default.createElement(
+                            'h2',
+                            null,
+                            this.state.currentUser.firstname,
+                            ' ',
+                            this.state.currentUser.lastname,
+                            ' [',
+                            this.state.currentUser.login,
+                            ']'
+                        )
                     ),
                     _react2.default.createElement(
-                        _Button2.default,
-                        { onClick: this.props.onAdd },
-                        _react2.default.createElement('i', { className: 'fa fa-search-plus', 'aria-hidden': 'true' })
-                    ),
-                    _react2.default.createElement(
-                        _Button2.default,
-                        { onClick: this.props.onNew },
-                        _react2.default.createElement('i', { className: 'fa fa-user', 'aria-hidden': 'true' }),
-                        ' (+',
-                        this.state.possibleFriends ? this.state.possibleFriends.length : this.state.possibleFriends.length,
-                        ')'
+                        'div',
+                        { className: 'col-xs-2' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { className: 'info-panel', onClick: this.props.onEdit },
+                                _react2.default.createElement('i', { className: 'fa fa-pencil-square-o', 'aria-hidden': 'true' })
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { className: 'info-panel', onClick: this.props.onAdd },
+                                _react2.default.createElement('i', { className: 'fa fa-search-plus', 'aria-hidden': 'true' })
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { className: 'info-panel', onClick: this.props.onNew },
+                                _react2.default.createElement('i', { className: 'fa fa-user', 'aria-hidden': 'true' })
+                            ),
+                            this.state.possibleFriends && this.state.possibleFriends.length > 0 ? _react2.default.createElement(
+                                'span',
+                                { className: 'num-possible-friends' },
+                                '+',
+                                this.state.possibleFriends.length
+                            ) : _react2.default.createElement('span', null)
+                        )
                     )
-                ),
-                _react2.default.createElement('div', { style: { clear: 'both' } })
+                )
             );
         }
     }]);

@@ -65,7 +65,8 @@ var FriendPanel = function (_Component) {
         });
         _UserStore2.default.addListener('filterFriends', function () {
             _this.setState({
-                filterFriends: _UserStore2.default.getFilterFriends(),
+                friends: _UserStore2.default.getFilterFriends(),
+                //filterFriends: UserStore.getFilterFriends(),
                 activeFriend: _UserStore2.default.getActiveFriend()
             });
         });
@@ -80,31 +81,34 @@ var FriendPanel = function (_Component) {
                 { className: 'FilterPanel' },
                 _react2.default.createElement(
                     'div',
-                    { style: { float: 'left' } },
-                    _react2.default.createElement(
-                        _Button2.default,
-                        { onClick: _UserActions2.default.showAllFriends.bind(_UserActions2.default) },
-                        '\u0412\u0441\u0435'
-                    ),
-                    _react2.default.createElement(
-                        _Button2.default,
-                        { onClick: _UserActions2.default.showOnlineFriends.bind(_UserActions2.default) },
-                        '\u041E\u043D\u043B\u0430\u0439\u043D'
-                    )
-                ),
-                _react2.default.createElement(
-                    'div',
-                    { style: { float: 'right' } },
+                    { className: 'row' },
                     _react2.default.createElement(
                         'div',
-                        { className: 'WhinepadToolbarSearch' },
-                        _react2.default.createElement('input', {
-                            onChange: _UserActions2.default.filterSearch.bind(_UserActions2.default),
-                            onFocus: _UserActions2.default.startFilterSearch.bind(_UserActions2.default)
-                        })
+                        { className: 'col-xs-7' },
+                        _react2.default.createElement(
+                            _Button2.default,
+                            { className: 'friend-panel', onClick: _UserActions2.default.showAllFriends.bind(_UserActions2.default) },
+                            '\u0412\u0441\u0435'
+                        ),
+                        _react2.default.createElement(
+                            _Button2.default,
+                            { className: 'friend-panel', onClick: _UserActions2.default.showOnlineFriends.bind(_UserActions2.default) },
+                            '\u041E\u043D\u043B\u0430\u0439\u043D'
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'col-xs-5' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'WhinepadToolbarSearch' },
+                            _react2.default.createElement('input', {
+                                onChange: _UserActions2.default.filterSearch.bind(_UserActions2.default),
+                                onFocus: _UserActions2.default.startFilterSearch.bind(_UserActions2.default)
+                            })
+                        )
                     )
-                ),
-                _react2.default.createElement('div', { style: { clear: 'both' } })
+                )
             );
         }
     }, {
@@ -118,67 +122,82 @@ var FriendPanel = function (_Component) {
                 this._renderFilterPanel(),
                 _react2.default.createElement(
                     'div',
-                    null,
+                    { className: 'row' },
                     _react2.default.createElement(
                         'div',
-                        { style: { float: 'left', width: '30px', fontSize: '40px', textAlign: 'center' } },
+                        { className: 'col-xs-1' },
                         _react2.default.createElement(
-                            'span',
+                            'div',
                             null,
-                            '\u2039'
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { className: 'friend-panel-arrow left' },
+                                ' ',
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    '\u2039'
+                                )
+                            )
                         )
                     ),
                     _react2.default.createElement(
                         'div',
-                        { style: { float: 'right', width: '30px', fontSize: '40px', textAlign: 'center' } },
+                        { className: 'col-xs-10' },
                         _react2.default.createElement(
-                            'span',
-                            null,
-                            '\u203A'
-                        )
-                    ),
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'friend' },
-                        _react2.default.createElement(
-                            'h3',
-                            null,
-                            this.state.filterFriends.length > 0 ? this.state.filterFriends.map(function (friend) {
-                                return _react2.default.createElement(_Avatar2.default, {
-                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
-                                    size: 'small',
-                                    form: 'round',
-                                    online: friend.online,
-                                    src: friend.mainImg,
-                                    title: friend.firstname + ' ' + friend.lastname,
-                                    alt: friend.login,
-                                    id: friend._id,
-                                    onClick: function onClick() {
-                                        _UserStore2.default.setActiveFriend(friend);
-                                    }
-                                });
-                            }, this) : this.state.friends.map(function (friend) {
+                            'div',
+                            { className: 'avatar-list' },
+                            this.state.friends.length > 0 ? this.state.friends.map(function (friend) {
                                 //console.log('this.state.activeFriend:', this.state.activeFriend);
                                 //console.log('friend:', friend);
                                 //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
+                                var pos = _this2.state.currentUser.friends.map(function (friend) {
+                                    return friend.id;
+                                }).indexOf(friend._id);
+                                //console.log('this.state.currentUser.friends[pos]:', this.state.currentUser.friends);
+                                //console.log('pos:', pos);
+                                var numNewMessages = _this2.state.currentUser.friends[pos].numNewMessages;
                                 return _react2.default.createElement(_Avatar2.default, {
                                     active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
                                     size: 'small',
                                     form: 'round',
                                     online: friend.online,
-                                    src: friend.mainImg,
+                                    src: friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg',
                                     title: friend.firstname + ' ' + friend.lastname,
                                     alt: friend.login,
                                     id: friend._id,
+                                    numNewMessages: numNewMessages,
                                     onClick: function onClick() {
-                                        _UserStore2.default.setActiveFriend(friend);
+                                        _UserActions2.default.setActiveFriend(friend);
+                                        //UserStore.setActiveFriend(friend);
                                     }
                                 });
-                            }, this)
+                            }, this) : _react2.default.createElement(
+                                'div',
+                                { className: 'friend-panel-info' },
+                                ' \u0414\u0440\u0443\u0437\u044C\u044F \u0441 \u0437\u0430\u0434\u0430\u043D\u043D\u044B\u043C\u0438 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0430\u043C\u0438 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u044E\u0442.'
+                            )
                             //(this.state.possibleFriends.length > 0) 
                             //? this.state.possibleFriends.length
                             //: this.state.possibleFriends.length
 
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'col-xs-1' },
+                        _react2.default.createElement(
+                            'div',
+                            null,
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { className: 'friend-panel-arrow right' },
+                                _react2.default.createElement(
+                                    'span',
+                                    null,
+                                    '\u203A'
+                                )
+                            )
                         )
                     ),
                     _react2.default.createElement('div', { style: { clear: 'both' } })

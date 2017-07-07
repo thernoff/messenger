@@ -3,6 +3,7 @@
 import UserStore from './flux/UserStore';
 import UserActions from './flux/UserActions';
 import Logo from './components/Logo';
+import Button from './components/Button';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Messenger from './components/Messenger';
@@ -15,7 +16,11 @@ UserStore.init();
 ReactDOM.render(
   <div className="app">
     <div className="app-header">
-      <Logo/> FriendMessenger
+      <div className="row">
+        <div className="col-xs-3"><Logo/></div>
+        <div className="col-xs-7"><span className="title">FriendMessenger</span></div>
+        <div className="col-xs-2"><Button className="logout"><i className="fa fa-sign-out" aria-hidden="true"></i></Button></div>
+      </div>
     </div>
     <Messenger />
   </div>,

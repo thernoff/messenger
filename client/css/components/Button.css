@@ -1,5 +1,5 @@
 .Button {
-    background-color: #6f001b;
+    background-color: #3f70a2;
     border-radius: 10px;
     border: 0;
     box-shadow: 0px 1px 1px #d9d9d9;
@@ -14,5 +14,42 @@
     transition-property: transform;
 }
 .Button:hover {
-    transform: scale(1.1);
+    transform: scale(1);
+}
+
+.Button.logout{
+    box-shadow: none;
+}
+
+.Button.info-panel{
+    width: 35px;
+    margin-left: 10px;
+    margin-bottom: 1px;
+    padding: 5px 10px;
+}
+
+.Button.friend-panel{
+    margin-left: 2px;    
+}
+
+.Button.friend-panel-arrow{
+    width: 25px;
+    height: 60px;
+    padding: 0px;
+}
+
+.Button.friend-panel-arrow.left{
+    margin-left: -5px;
+    border-radius: 0px;
+}
+
+.Button.friend-panel-arrow.right{
+    margin-left: -8px;
+    border-radius: 0px;
+}
+
+.Button.message-panel-send{
+    margin-top: 50px;
+    margin-left: -25px;
+    padding: 5px 10px;
 }

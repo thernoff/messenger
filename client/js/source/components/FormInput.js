@@ -34,6 +34,8 @@ class FormInput extends Component {
         );
       case 'text':
         return <textarea {...common} />;
+      case 'file':
+        return <input {...common} type="file"/>;
       default:
         if (this.props.error){
           //return <input {...common} style={{border: '1px solid red'}} type="text" />;

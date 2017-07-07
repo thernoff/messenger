@@ -24,16 +24,20 @@ class Avatar extends Component{
     render(){
         let online = this.props.online;
         return (
-            <div className={classNames('Avatar', {'active' : this.props.active})} >
-                <img className={classNames(
-                        this.props.size, this.props.form, {'online' : online, 'offline': !online}
-                    )} 
-                    src={this.props.src}
-                    alt={this.props.alt}
-                    title={this.props.title}
-                    data-id={this.props.id ? this.props.id : ''}
-                    onClick={this.props.onClick}
-                />
+            <div className={classNames('Avatar', {'active' : this.props.active, 'online' : online, 'offline': !online})} >
+                    <img className={classNames(
+                            this.props.size, this.props.form,
+                        )} 
+                        src={this.props.src}
+                        alt={this.props.alt}
+                        title={this.props.title}
+                        data-id={this.props.id ? this.props.id : ''}
+                        onClick={this.props.onClick}
+                    />
+                    {
+                        (this.props.numNewMessages && this.props.numNewMessages > 0)?<span className="num-new-messages">+{this.props.numNewMessages}</span>:<span></span>
+                    }
+                    
             </div>
         );
     }

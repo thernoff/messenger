@@ -273,11 +273,55 @@ var Messenger = function (_Component) {
             }
 
             var data = this.refs.addFriendForm.getData();
+
             if (data) {
+                console.log('Messenger._searchFriend data:', data);
                 _UserActions2.default.searchFriend(data);
                 this.setState({ typeForm: 'listSearchFriends' });
             }
         }
+
+        //Метод отображает список пользователей, желающих добавиться в друзья
+
+    }, {
+        key: '_renderUploadPhotoForm',
+        value: function _renderUploadPhotoForm() {
+            var arrPossibleFriends = this.state.possibleFriends;
+            return _react2.default.createElement(
+                _Dialog2.default,
+                {
+                    modal: true,
+                    header: '\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0444\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u0438',
+                    onAction: this._cancel.bind(this),
+                    hasCancel: false
+                },
+                _react2.default.createElement(
+                    'form',
+                    { id: 'uploadForm', onsubmit: 'return false;' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'form-group' },
+                        _react2.default.createElement('input', { id: 'file', type: 'file', className: 'form-control' })
+                    )
+                ),
+                _react2.default.createElement(
+                    _Button2.default,
+                    { onClick: this._uploadPhoto.bind(this) },
+                    'Upload'
+                )
+            );
+        }
+    }, {
+        key: '_uploadPhoto',
+        value: function _uploadPhoto() {
+            //let uploadForm = document.getElementById('uploadForm');
+            var data = new FormData();
+            var currentUser = _UserStore2.default.getCurrentUser();
+            data.append('currentUserId', currentUser._id);
+            data.append('photo', document.getElementById('file').files[0]);
+            _UserActions2.default.uploadPhoto(data);
+        }
+
         //Метод отображает список пользователей, желающих добавиться в друзья
 
     }, {
@@ -333,7 +377,7 @@ var Messenger = function (_Component) {
         value: function _renderSearchPossibleFriendList() {
             var _this3 = this;
 
-            var arrSearchFriends = this.state.searchFriends;
+            var arrSearchFriends = this.state.searchFriends ? this.state.searchFriends : [];
             return _react2.default.createElement(
                 _Dialog2.default,
                 {
@@ -342,7 +386,7 @@ var Messenger = function (_Component) {
                     onAction: this._cancel.bind(this),
                     hasCancel: false
                 },
-                arrSearchFriends.map(function (friend, idx) {
+                arrSearchFriends.length > 0 ? arrSearchFriends.map(function (friend, idx) {
                     console.log('FRIEND', friend);
                     return _react2.default.createElement(
                         'p',
@@ -357,7 +401,11 @@ var Messenger = function (_Component) {
                             '+'
                         )
                     );
-                })
+                }) : _react2.default.createElement(
+                    'p',
+                    null,
+                    '\u0421\u043F\u0438\u0441\u043E\u043A \u043F\u0443\u0441\u0442'
+                )
             );
         }
     }, {
@@ -386,6 +434,7 @@ var Messenger = function (_Component) {
                     'div',
                     { className: 'Panels' },
                     _react2.default.createElement(_InfoPanel2.default, {
+                        onUploadPhoto: this._actionClick.bind(this, 'uploadPhotoForm'),
                         onEdit: this._actionClick.bind(this, 'editForm'),
                         onAdd: this._actionClick.bind(this, 'searchFriendForm'),
                         onNew: this._actionClick.bind(this, 'newFriendsList')
@@ -416,6 +465,8 @@ var Messenger = function (_Component) {
         key: '_renderForm',
         value: function _renderForm() {
             switch (this.state.typeForm) {
+                case 'uploadPhotoForm':
+                    return this._renderUploadPhotoForm();
                 case 'newFriendsList':
                     return this._renderNewFriendList();
                 case 'listSearchFriends':
