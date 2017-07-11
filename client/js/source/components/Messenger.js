@@ -21,6 +21,7 @@ class Messenger extends Component{
             errorLogin: false,
             errorPassword: false,
             errorEmail: false,
+            info: UserStore.getInfoMessage(),
         };
         UserStore.addListener('change', () => {
             this.setState({
@@ -29,6 +30,12 @@ class Messenger extends Component{
                 currentUser: UserStore.getCurrentUser(),
             });
         });
+
+        UserStore.addListener('newInfoMessage', () => {
+        this.setState({
+            info: UserStore.getInfoMessage(),
+        });
+    });
     }
 
     componentDidMount() {
@@ -218,7 +225,7 @@ class Messenger extends Component{
         }
     }
 
-    //Метод отображает список пользователей, желающих добавиться в друзья
+    //Метод отображает форму для загрузки фотографий
     _renderUploadPhotoForm(){
         let arrPossibleFriends = this.state.possibleFriends;
         return(
@@ -227,6 +234,7 @@ class Messenger extends Component{
                 header="Загрузка фотографии"
                 onAction={this._cancel.bind(this)}
                 hasCancel={false}
+                info={this.state.info}
             >
                 <form id="uploadForm" onsubmit="return false;">
                     <div className="form-group">
@@ -238,14 +246,14 @@ class Messenger extends Component{
         );
     }
 
-_uploadPhoto(){
-    //let uploadForm = document.getElementById('uploadForm');
-    let data = new FormData();
-    let currentUser = UserStore.getCurrentUser();
-    data.append('currentUserId', currentUser._id);
-    data.append('photo', document.getElementById('file').files[0]);
-    UserActions.uploadPhoto(data);
-}
+    _uploadPhoto(){
+        //let uploadForm = document.getElementById('uploadForm');
+        let data = new FormData();
+        let currentUser = UserStore.getCurrentUser();
+        data.append('currentUserId', currentUser._id);
+        data.append('photo', document.getElementById('file').files[0]);
+        UserActions.uploadPhoto(data);
+    }
 
 //Метод отображает список пользователей, желающих добавиться в друзья
     _renderNewFriendList(){
@@ -308,7 +316,7 @@ _uploadPhoto(){
     }
 
     _cancel(){
-        this.setState({typeForm: null});
+        this.setState({typeForm: null, info: UserStore.getInfoMessage()});
     }
 
     _sendRequestAddToFriends(possibleFriend){

@@ -272,7 +272,12 @@ var UserActions = {
     },
     uploadPhoto: function uploadPhoto(data) {
         _api2.default.uploadPhoto(data).then(function (res) {
-            _UserStore2.default.setUser(res.data);
+            if (res.data) {
+                _UserStore2.default.setUser(res.data);
+                _UserStore2.default.setInfoMessage({ status: 'success', text: 'Файл успешно загружен.' });
+            } else {
+                _UserStore2.default.setInfoMessage({ status: 'error', text: 'Произошла ошибка при загрузке файла. Убедитесь что он имеет расширение jpeg или png и его размер не превышает 1Mb.' });
+            }
         }).catch(function (err) {
             return console.error(err);
         });

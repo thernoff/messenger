@@ -5,12 +5,14 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import * as db from './utils/DataBaseUtils.js';
 import { serverPort } from '../etc/config.json';
+import { imageSettings } from '../etc/config.json';
 import socket from 'socket.io';
 import expressHandlebars from 'express-handlebars';
 import credentials from './credentials.js';
 import cookieParser from 'cookie-parser';
 import formidable from 'formidable';
 import fs from 'fs';
+import jimp from 'jimp';
 
 db.setUpConnection();
 
@@ -62,7 +64,7 @@ app.post('/user/get', (req, res) => {
                 db.getFriends(arrObjIdsFriends)
                 .then(
                     (arrFriends) => {
-                        console.log(arrFriends);
+                        //console.log(arrFriends);
                         data.friends = arrFriends;
                         //res.send(data);
                     });
@@ -90,7 +92,7 @@ app.post('/possible/add', (req, res) => {
     db.addToPossibleFriends(req.body)
         .then(
             (data) => {
-                console.log('data: ', data);
+                //console.log('data: ', data);
                 res.send(data);
             }
         );
@@ -121,7 +123,7 @@ app.post('/friend/add', (req, res) => {
 });
 
 app.post('/user/create', (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     db.createUser(req.body)
         .then( data => res.send(data) )
         .catch( ()=> res.send(null) );
@@ -193,32 +195,59 @@ app.put('/upload/server/', (req, res) => {
 
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files){
+        //console.log('fields: ', fields);
+        //console.log('files: ', files);
         if(err){
             res.send(null);
         }
         let photo = files.photo;
+        //console.log(imageSettings.types.indexOf(photo.type));
         let currentUserId = fields.currentUserId;
         let dir = 'public/avatars/' + currentUserId;
-        //var path = dir + '/' + photo.name;
-        if(!fs.existsSync(dir)){
-            fs.mkdirSync(dir);
-        }
-        //fs.mkdirSync(dir);
-        fs.renameSync(photo.path, dir + '/' + photo.name);
-        /*saveContestEntry('vacation-photo', fields.email, req.params.year, req.params.month, path);
-        req.session.flash = {
-            type: 'success',
-            intro: 'Удачи!',
-            message: 'Вы стали участником конкурса.',
-        };*/
+        console.log('photo: ', photo);
+        if (photo && ( imageSettings.types.indexOf(photo.type) > -1 ) && ( photo.size < imageSettings.maxSize )){
+            
+            if(!fs.existsSync(dir)){
+                fs.mkdirSync(dir);
+            }
+            //fs.mkdirSync(dir);
+            //fs.renameSync(photo.path, dir + '/' + photo.name);
+            
+            /*saveContestEntry('vacation-photo', fields.email, req.params.year, req.params.month, path);
+            req.session.flash = {
+                type: 'success',
+                intro: 'Удачи!',
+                message: 'Вы стали участником конкурса.',
+            };*/
+            let src = dir + '/' + photo.name;
+            jimp.read(photo.path)
+                .then(function (image) {
+                    let originalWidth = image.bitmap.width;
+                    let originalHeight = image.bitmap.height;
+                    let min = Math.min(originalWidth, originalHeight);
+                    let x = Math.round((originalWidth - min)/2);
+                    let y = Math.round((originalHeight - min)/2);
+                    image.crop(x, y, min, min)
+                        .resize(200, jimp.AUTO)               // resize
+                        .quality(70)                 // set JPEG quality
+                        .write(src);                 // save
 
-        db.updateUser({_id: currentUserId, mainImg: photo.name})
-            .then(
-                (data) => {
-                    //console.log(data);
-                    res.send(data);
-                }
-            ).catch( ()=> res.send(null) );
+                    db.updateUser({_id: currentUserId, mainImg: photo.name})
+                        .then(
+                            (data) => {
+                                //console.log(data);
+                                res.send(data);
+                            }
+                        ).catch( ()=> res.send(null) );
+                    })
+                .catch(function (err) {
+                    console.error(err);
+                    res.send(null);
+                });
+        }else{
+            res.send(null);    
+        }
+        //res.send(null);
     });
 });
 
@@ -238,7 +267,7 @@ io.sockets.on('connection', function(client){
             //objClients[client.id] = userId;
             objClients[currentUserId] = client.id;
         }
-        console.log('objClients: ', objClients);
+        //console.log('objClients: ', objClients);
         io.sockets.emit('online', currentUserId);
     });
     client.on('update', function(data){
@@ -265,7 +294,7 @@ io.sockets.on('connection', function(client){
                 delete objClients[key];
             }
         }        
-        console.log('objClients: ', objClients);
+        //console.log('objClients: ', objClients);
         io.sockets.emit('offline', currentUserId);
         //io.sockets.emit('hello', {hello: 'Одно подключение потеряно.'});
         console.log('Client ' + client.id + ' disconnected');

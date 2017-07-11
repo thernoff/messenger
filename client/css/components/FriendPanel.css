@@ -14,12 +14,12 @@
 }
 
 .FriendPanel .FilterPanel input{
-    margin-left: -5px;
+    margin-left: -15px;
     padding: 5px;
 }
 
 .FriendPanel div.friend-panel-info{
-    margin-top: 10px;
+    margin-top: 15px;
     text-align: center;
     font-size: 16px;
 }

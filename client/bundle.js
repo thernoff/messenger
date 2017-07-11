@@ -482,6 +482,10 @@ var _Button = require('./Button');
 
 var _Button2 = _interopRequireDefault(_Button);
 
+var _classnames = require('classnames');
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -532,7 +536,12 @@ var Dialog = function (_Component) {
           _react2.default.createElement(
             'div',
             { className: 'DialogBody' },
-            this.props.children
+            this.props.children,
+            this.props.info ? _react2.default.createElement(
+              'div',
+              { className: (0, _classnames2.default)('info', { 'success': this.props.info.status === 'success', 'error': this.props.info.status === 'error' }) },
+              this.props.info.text
+            ) : null
           ),
           _react2.default.createElement(
             'div',
@@ -574,7 +583,7 @@ Dialog.defaultProps = {
 };
 
 exports.default = Dialog;
-},{"./Button":6,"react":235}],8:[function(require,module,exports){
+},{"./Button":6,"classnames":47,"react":235}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -835,7 +844,9 @@ var FriendPanel = function (_Component) {
             currentUser: _UserStore2.default.getCurrentUser(),
             friends: _UserStore2.default.getFriends(),
             activeFriend: _UserStore2.default.getActiveFriend(),
-            filterFriends: _UserStore2.default.getFilterFriends()
+            filterFriends: _UserStore2.default.getFilterFriends(),
+            minFriendId: 0,
+            maxFriendId: 4
         };
         _UserStore2.default.addListener('change', function () {
             //console.log(UserStore.getPossibleFriends());
@@ -855,13 +866,42 @@ var FriendPanel = function (_Component) {
             _this.setState({
                 friends: _UserStore2.default.getFilterFriends(),
                 //filterFriends: UserStore.getFilterFriends(),
-                activeFriend: _UserStore2.default.getActiveFriend()
+                activeFriend: _UserStore2.default.getActiveFriend(),
+                minFriendId: 0,
+                maxFriendId: 4
             });
         });
         return _this;
     }
 
     _createClass(FriendPanel, [{
+        key: '_moveLeftListFriends',
+        value: function _moveLeftListFriends() {
+            var minFriendId = this.state.minFriendId;
+            var maxFriendId = this.state.maxFriendId;
+            console.log('minFriendId: ', minFriendId);
+            console.log('maxFriendId: ', maxFriendId);
+            if (minFriendId - 1 < 0) return;
+            this.setState({
+                minFriendId: --minFriendId,
+                maxFriendId: --maxFriendId
+            });
+        }
+    }, {
+        key: '_moveRightListFriends',
+        value: function _moveRightListFriends() {
+            var minFriendId = this.state.minFriendId;
+            var maxFriendId = this.state.maxFriendId;
+            var countFriends = this.state.friends.length;
+            console.log('minFriendId: ', minFriendId);
+            console.log('maxFriendId: ', maxFriendId);
+            if (maxFriendId + 1 >= countFriends) return;
+            this.setState({
+                minFriendId: ++minFriendId,
+                maxFriendId: ++maxFriendId
+            });
+        }
+    }, {
         key: '_renderFilterPanel',
         value: function _renderFilterPanel() {
             return _react2.default.createElement(
@@ -919,7 +959,7 @@ var FriendPanel = function (_Component) {
                             null,
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'friend-panel-arrow left' },
+                                { className: 'friend-panel-arrow left', onClick: this._moveLeftListFriends.bind(this) },
                                 ' ',
                                 _react2.default.createElement(
                                     'span',
@@ -935,7 +975,7 @@ var FriendPanel = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'avatar-list' },
-                            this.state.friends.length > 0 ? this.state.friends.map(function (friend) {
+                            this.state.friends.length > 0 ? this.state.friends.map(function (friend, idx) {
                                 //console.log('this.state.activeFriend:', this.state.activeFriend);
                                 //console.log('friend:', friend);
                                 //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
@@ -944,22 +984,26 @@ var FriendPanel = function (_Component) {
                                 }).indexOf(friend._id);
                                 //console.log('this.state.currentUser.friends[pos]:', this.state.currentUser.friends);
                                 //console.log('pos:', pos);
+                                //console.log('idx:', idx);
                                 var numNewMessages = _this2.state.currentUser.friends[pos].numNewMessages;
-                                return _react2.default.createElement(_Avatar2.default, {
-                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
-                                    size: 'small',
-                                    form: 'round',
-                                    online: friend.online,
-                                    src: friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg',
-                                    title: friend.firstname + ' ' + friend.lastname,
-                                    alt: friend.login,
-                                    id: friend._id,
-                                    numNewMessages: numNewMessages,
-                                    onClick: function onClick() {
-                                        _UserActions2.default.setActiveFriend(friend);
-                                        //UserStore.setActiveFriend(friend);
-                                    }
-                                });
+                                if (idx >= _this2.state.minFriendId && idx <= _this2.state.maxFriendId) {
+                                    return _react2.default.createElement(_Avatar2.default, {
+                                        key: idx,
+                                        active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
+                                        size: 'small',
+                                        form: 'round',
+                                        online: friend.online,
+                                        src: friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg',
+                                        title: friend.firstname + ' ' + friend.lastname,
+                                        alt: friend.login,
+                                        id: friend._id,
+                                        numNewMessages: numNewMessages,
+                                        onClick: function onClick() {
+                                            _UserActions2.default.setActiveFriend(friend);
+                                            //UserStore.setActiveFriend(friend);
+                                        }
+                                    });
+                                }
                             }, this) : _react2.default.createElement(
                                 'div',
                                 { className: 'friend-panel-info' },
@@ -979,7 +1023,7 @@ var FriendPanel = function (_Component) {
                             null,
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'friend-panel-arrow right' },
+                                { className: 'friend-panel-arrow right', onClick: this._moveRightListFriends.bind(this) },
                                 _react2.default.createElement(
                                     'span',
                                     null,
@@ -1435,13 +1479,20 @@ var Messenger = function (_Component) {
             typeForm: null,
             errorLogin: false,
             errorPassword: false,
-            errorEmail: false
+            errorEmail: false,
+            info: _UserStore2.default.getInfoMessage()
         };
         _UserStore2.default.addListener('change', function () {
             _this.setState({
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
                 searchFriends: _UserStore2.default.getSearchFriends(),
                 currentUser: _UserStore2.default.getCurrentUser()
+            });
+        });
+
+        _UserStore2.default.addListener('newInfoMessage', function () {
+            _this.setState({
+                info: _UserStore2.default.getInfoMessage()
             });
         });
         return _this;
@@ -1649,7 +1700,7 @@ var Messenger = function (_Component) {
             }
         }
 
-        //Метод отображает список пользователей, желающих добавиться в друзья
+        //Метод отображает форму для загрузки фотографий
 
     }, {
         key: '_renderUploadPhotoForm',
@@ -1661,7 +1712,8 @@ var Messenger = function (_Component) {
                     modal: true,
                     header: '\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0444\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u0438',
                     onAction: this._cancel.bind(this),
-                    hasCancel: false
+                    hasCancel: false,
+                    info: this.state.info
                 },
                 _react2.default.createElement(
                     'form',
@@ -1779,7 +1831,7 @@ var Messenger = function (_Component) {
     }, {
         key: '_cancel',
         value: function _cancel() {
-            this.setState({ typeForm: null });
+            this.setState({ typeForm: null, info: _UserStore2.default.getInfoMessage() });
         }
     }, {
         key: '_sendRequestAddToFriends',
@@ -2391,7 +2443,12 @@ var UserActions = {
     },
     uploadPhoto: function uploadPhoto(data) {
         _api2.default.uploadPhoto(data).then(function (res) {
-            _UserStore2.default.setUser(res.data);
+            if (res.data) {
+                _UserStore2.default.setUser(res.data);
+                _UserStore2.default.setInfoMessage({ status: 'success', text: 'Файл успешно загружен.' });
+            } else {
+                _UserStore2.default.setInfoMessage({ status: 'error', text: 'Произошла ошибка при загрузке файла. Убедитесь что он имеет расширение jpeg или png и его размер не превышает 1Mb.' });
+            }
         }).catch(function (err) {
             return console.error(err);
         });
@@ -2417,6 +2474,7 @@ var friends = void 0;
 var activeFriend = void 0;
 var dialog = void 0;
 var mainImg = void 0;
+var infoMessage = void 0;
 var UserStore = {
     init: function init() {
         //currentUser = currentUser;
@@ -2437,6 +2495,7 @@ var UserStore = {
         friends = [];
         filterFriends = [], activeFriend = null;
         dialog = [];
+        infoMessage = null;
     },
     setFilterFriends: function setFilterFriends(friends) {
         filterFriends = friends;
@@ -2515,6 +2574,18 @@ var UserStore = {
             return currentUser._id + '/' + currentUser.mainImg;
         }
         return 'no-avatar.jpg';
+    },
+    setInfoMessage: function setInfoMessage(msg) {
+        infoMessage = msg;
+        console.log('-----UserStore.setInfoMessage-----');
+        console.log(msg);
+        //emitter.emit('change');
+        emitter.emit('newInfoMessage');
+        //setTimeout( function(){infoMessage = ''}.bind(this), 1000);
+        infoMessage = null;
+    },
+    getInfoMessage: function getInfoMessage() {
+        return infoMessage;
     }
 };
 
@@ -2571,6 +2642,10 @@ module.exports={
         "name": "messenger",
         "host": "localhost",
         "port": 27017
+    },
+    "imageSettings":{
+        "maxSize": 1000000,
+        "types": ["image/png", "image/jpeg"]
     }
 }
 },{}],22:[function(require,module,exports){

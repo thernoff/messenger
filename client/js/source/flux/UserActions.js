@@ -293,9 +293,16 @@ const UserActions = {
 
     uploadPhoto(data){
         api.uploadPhoto(data)
-        .then( res => {
-            UserStore.setUser(res.data);
-        } )
+        .then(
+            res =>{
+                if(res.data){
+                    UserStore.setUser(res.data);
+                    UserStore.setInfoMessage({status: 'success', text: 'Файл успешно загружен.'});
+                }else{
+                    UserStore.setInfoMessage({status: 'error', text: 'Произошла ошибка при загрузке файла. Убедитесь что он имеет расширение jpeg или png и его размер не превышает 1Mb.'});
+                }
+            }
+        )
         .catch(err => console.error(err));
     },
 };

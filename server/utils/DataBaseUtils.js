@@ -116,7 +116,7 @@ export function updateUser(data) {
         if(err){
             console.log("An error occurred while updating the data.");
         }
-        console.log(user);
+        //console.log(user);
     });
 }
 
@@ -235,7 +235,7 @@ export function resetNumNewMessage(data) {
 
     return query.exec(function(err, currentUser){
         let pos = currentUser.friends.map((item) => {return item.id}).indexOf(activeFriendId);
-        console.log(pos);
+        //console.log(pos);
 
         
         currentUser.friends[pos].numNewMessages = 0;

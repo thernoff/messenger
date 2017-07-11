@@ -9,6 +9,7 @@ let friends;
 let activeFriend;
 let dialog;
 let mainImg;
+let infoMessage;
 const UserStore = {
     init(){
         //currentUser = currentUser;
@@ -30,6 +31,7 @@ const UserStore = {
         filterFriends = [],
         activeFriend=null;
         dialog = [];
+        infoMessage = null;
     },
 
     setFilterFriends(friends){
@@ -123,6 +125,20 @@ const UserStore = {
             return currentUser._id + '/' + currentUser.mainImg;
         }
         return 'no-avatar.jpg';
+    },
+
+    setInfoMessage(msg){
+        infoMessage = msg;
+        console.log('-----UserStore.setInfoMessage-----');
+        console.log(msg);
+        //emitter.emit('change');
+        emitter.emit('newInfoMessage');
+        //setTimeout( function(){infoMessage = ''}.bind(this), 1000);
+        infoMessage = null;
+    },
+
+    getInfoMessage(){
+        return infoMessage;
     }
 }
 

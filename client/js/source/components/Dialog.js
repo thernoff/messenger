@@ -1,4 +1,5 @@
 import Button from './Button';
+import classNames from 'classnames';
 import React, {Component, PropTypes} from 'react';
 
 class Dialog extends Component {
@@ -18,7 +19,15 @@ componentDidMount() {
       <div className={this.props.modal ? 'Dialog DialogModal' : 'Dialog'}>
         <div className={this.props.modal ? 'DialogModalWrap' : null}>
           <div className="DialogHeader">{this.props.header}</div>
-          <div className="DialogBody">{this.props.children}</div>
+          <div className="DialogBody">
+            {this.props.children}
+            
+            {
+              this.props.info
+              ? <div className={classNames('info', {'success' : this.props.info.status === 'success', 'error' : this.props.info.status === 'error'})}>{this.props.info.text}</div>
+              : null
+            }
+          </div>
           <div className="DialogFooter">
             {this.props.hasCancel
               ? <span 

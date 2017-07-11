@@ -13,6 +13,8 @@ class FriendPanel extends Component{
             friends: UserStore.getFriends(),
             activeFriend: UserStore.getActiveFriend(),
             filterFriends: UserStore.getFilterFriends(),
+            minFriendId: 0,
+            maxFriendId: 4,
         };
         UserStore.addListener('change', () => {
             //console.log(UserStore.getPossibleFriends());
@@ -33,7 +35,34 @@ class FriendPanel extends Component{
                 friends: UserStore.getFilterFriends(),
                 //filterFriends: UserStore.getFilterFriends(),
                 activeFriend: UserStore.getActiveFriend(),
+                minFriendId: 0,
+                maxFriendId: 4,
             });
+        });
+    }
+
+    _moveLeftListFriends(){
+        let minFriendId = this.state.minFriendId;
+        let maxFriendId = this.state.maxFriendId;
+        console.log('minFriendId: ', minFriendId);
+        console.log('maxFriendId: ', maxFriendId);
+        if (minFriendId - 1 < 0) return;
+        this.setState({
+            minFriendId: --minFriendId,
+            maxFriendId: --maxFriendId,
+        });
+    }
+
+    _moveRightListFriends(){
+        let minFriendId = this.state.minFriendId;
+        let maxFriendId = this.state.maxFriendId;
+        let countFriends = this.state.friends.length;
+        console.log('minFriendId: ', minFriendId);
+        console.log('maxFriendId: ', maxFriendId);
+        if (maxFriendId + 1 >= countFriends) return;
+        this.setState({
+            minFriendId: ++minFriendId,
+            maxFriendId: ++maxFriendId,
         });
     }
 
@@ -64,21 +93,25 @@ class FriendPanel extends Component{
                 {this._renderFilterPanel()}
                 <div className="row">
                     <div className="col-xs-1">
-                        <div><Button className="friend-panel-arrow left"> <span>&#8249;</span></Button></div>
+                        <div><Button className="friend-panel-arrow left" onClick={this._moveLeftListFriends.bind(this)}> <span>&#8249;</span></Button></div>
                     </div>                    
                     
                     <div className='col-xs-10'>
                         <div className="avatar-list">
                             {
-                                this.state.friends.length > 0 ? this.state.friends.map((friend) => {
+                                this.state.friends.length > 0 
+                                ? this.state.friends.map((friend, idx) => {
                                     //console.log('this.state.activeFriend:', this.state.activeFriend);
                                     //console.log('friend:', friend);
                                     //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
                                     let pos = this.state.currentUser.friends.map((friend) => {return friend.id}).indexOf(friend._id);
                                     //console.log('this.state.currentUser.friends[pos]:', this.state.currentUser.friends);
                                     //console.log('pos:', pos);
+                                    //console.log('idx:', idx);
                                     let numNewMessages = this.state.currentUser.friends[pos].numNewMessages;
-                                    return <Avatar
+                                    if (idx >= this.state.minFriendId && idx <= this.state.maxFriendId){
+                                        return <Avatar
+                                            key={idx}
                                             active={ (this.state.activeFriend !== null && this.state.activeFriend._id === friend._id) }
                                             size='small' 
                                             form='round'
@@ -93,6 +126,8 @@ class FriendPanel extends Component{
                                                 //UserStore.setActiveFriend(friend);
                                             }}
                                         />
+                                    }
+                                    
                                 }, this)
                                 : <div className="friend-panel-info"> Друзья с заданными параметрами отсутствуют.</div>
                                 //(this.state.possibleFriends.length > 0) 
@@ -102,7 +137,7 @@ class FriendPanel extends Component{
                         </div>
                     </div>
                     <div className="col-xs-1">
-                        <div><Button className="friend-panel-arrow right"><span>&#8250;</span></Button></div>
+                        <div><Button className="friend-panel-arrow right" onClick={this._moveRightListFriends.bind(this)}><span>&#8250;</span></Button></div>
                     </div>
                     <div style={{clear: 'both'}}></div>
                 </div>

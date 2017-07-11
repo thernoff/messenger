@@ -67,13 +67,20 @@ var Messenger = function (_Component) {
             typeForm: null,
             errorLogin: false,
             errorPassword: false,
-            errorEmail: false
+            errorEmail: false,
+            info: _UserStore2.default.getInfoMessage()
         };
         _UserStore2.default.addListener('change', function () {
             _this.setState({
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
                 searchFriends: _UserStore2.default.getSearchFriends(),
                 currentUser: _UserStore2.default.getCurrentUser()
+            });
+        });
+
+        _UserStore2.default.addListener('newInfoMessage', function () {
+            _this.setState({
+                info: _UserStore2.default.getInfoMessage()
             });
         });
         return _this;
@@ -281,7 +288,7 @@ var Messenger = function (_Component) {
             }
         }
 
-        //Метод отображает список пользователей, желающих добавиться в друзья
+        //Метод отображает форму для загрузки фотографий
 
     }, {
         key: '_renderUploadPhotoForm',
@@ -293,7 +300,8 @@ var Messenger = function (_Component) {
                     modal: true,
                     header: '\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0444\u043E\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u0438',
                     onAction: this._cancel.bind(this),
-                    hasCancel: false
+                    hasCancel: false,
+                    info: this.state.info
                 },
                 _react2.default.createElement(
                     'form',
@@ -411,7 +419,7 @@ var Messenger = function (_Component) {
     }, {
         key: '_cancel',
         value: function _cancel() {
-            this.setState({ typeForm: null });
+            this.setState({ typeForm: null, info: _UserStore2.default.getInfoMessage() });
         }
     }, {
         key: '_sendRequestAddToFriends',

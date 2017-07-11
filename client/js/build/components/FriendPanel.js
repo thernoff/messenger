@@ -47,7 +47,9 @@ var FriendPanel = function (_Component) {
             currentUser: _UserStore2.default.getCurrentUser(),
             friends: _UserStore2.default.getFriends(),
             activeFriend: _UserStore2.default.getActiveFriend(),
-            filterFriends: _UserStore2.default.getFilterFriends()
+            filterFriends: _UserStore2.default.getFilterFriends(),
+            minFriendId: 0,
+            maxFriendId: 4
         };
         _UserStore2.default.addListener('change', function () {
             //console.log(UserStore.getPossibleFriends());
@@ -67,13 +69,42 @@ var FriendPanel = function (_Component) {
             _this.setState({
                 friends: _UserStore2.default.getFilterFriends(),
                 //filterFriends: UserStore.getFilterFriends(),
-                activeFriend: _UserStore2.default.getActiveFriend()
+                activeFriend: _UserStore2.default.getActiveFriend(),
+                minFriendId: 0,
+                maxFriendId: 4
             });
         });
         return _this;
     }
 
     _createClass(FriendPanel, [{
+        key: '_moveLeftListFriends',
+        value: function _moveLeftListFriends() {
+            var minFriendId = this.state.minFriendId;
+            var maxFriendId = this.state.maxFriendId;
+            console.log('minFriendId: ', minFriendId);
+            console.log('maxFriendId: ', maxFriendId);
+            if (minFriendId - 1 < 0) return;
+            this.setState({
+                minFriendId: --minFriendId,
+                maxFriendId: --maxFriendId
+            });
+        }
+    }, {
+        key: '_moveRightListFriends',
+        value: function _moveRightListFriends() {
+            var minFriendId = this.state.minFriendId;
+            var maxFriendId = this.state.maxFriendId;
+            var countFriends = this.state.friends.length;
+            console.log('minFriendId: ', minFriendId);
+            console.log('maxFriendId: ', maxFriendId);
+            if (maxFriendId + 1 >= countFriends) return;
+            this.setState({
+                minFriendId: ++minFriendId,
+                maxFriendId: ++maxFriendId
+            });
+        }
+    }, {
         key: '_renderFilterPanel',
         value: function _renderFilterPanel() {
             return _react2.default.createElement(
@@ -131,7 +162,7 @@ var FriendPanel = function (_Component) {
                             null,
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'friend-panel-arrow left' },
+                                { className: 'friend-panel-arrow left', onClick: this._moveLeftListFriends.bind(this) },
                                 ' ',
                                 _react2.default.createElement(
                                     'span',
@@ -147,7 +178,7 @@ var FriendPanel = function (_Component) {
                         _react2.default.createElement(
                             'div',
                             { className: 'avatar-list' },
-                            this.state.friends.length > 0 ? this.state.friends.map(function (friend) {
+                            this.state.friends.length > 0 ? this.state.friends.map(function (friend, idx) {
                                 //console.log('this.state.activeFriend:', this.state.activeFriend);
                                 //console.log('friend:', friend);
                                 //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
@@ -156,22 +187,26 @@ var FriendPanel = function (_Component) {
                                 }).indexOf(friend._id);
                                 //console.log('this.state.currentUser.friends[pos]:', this.state.currentUser.friends);
                                 //console.log('pos:', pos);
+                                //console.log('idx:', idx);
                                 var numNewMessages = _this2.state.currentUser.friends[pos].numNewMessages;
-                                return _react2.default.createElement(_Avatar2.default, {
-                                    active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
-                                    size: 'small',
-                                    form: 'round',
-                                    online: friend.online,
-                                    src: friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg',
-                                    title: friend.firstname + ' ' + friend.lastname,
-                                    alt: friend.login,
-                                    id: friend._id,
-                                    numNewMessages: numNewMessages,
-                                    onClick: function onClick() {
-                                        _UserActions2.default.setActiveFriend(friend);
-                                        //UserStore.setActiveFriend(friend);
-                                    }
-                                });
+                                if (idx >= _this2.state.minFriendId && idx <= _this2.state.maxFriendId) {
+                                    return _react2.default.createElement(_Avatar2.default, {
+                                        key: idx,
+                                        active: _this2.state.activeFriend !== null && _this2.state.activeFriend._id === friend._id,
+                                        size: 'small',
+                                        form: 'round',
+                                        online: friend.online,
+                                        src: friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg',
+                                        title: friend.firstname + ' ' + friend.lastname,
+                                        alt: friend.login,
+                                        id: friend._id,
+                                        numNewMessages: numNewMessages,
+                                        onClick: function onClick() {
+                                            _UserActions2.default.setActiveFriend(friend);
+                                            //UserStore.setActiveFriend(friend);
+                                        }
+                                    });
+                                }
                             }, this) : _react2.default.createElement(
                                 'div',
                                 { className: 'friend-panel-info' },
@@ -191,7 +226,7 @@ var FriendPanel = function (_Component) {
                             null,
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'friend-panel-arrow right' },
+                                { className: 'friend-panel-arrow right', onClick: this._moveRightListFriends.bind(this) },
                                 _react2.default.createElement(
                                     'span',
                                     null,

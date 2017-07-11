@@ -10,6 +10,10 @@ var _Button = require('./Button');
 
 var _Button2 = _interopRequireDefault(_Button);
 
+var _classnames = require('classnames');
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -60,7 +64,12 @@ var Dialog = function (_Component) {
           _react2.default.createElement(
             'div',
             { className: 'DialogBody' },
-            this.props.children
+            this.props.children,
+            this.props.info ? _react2.default.createElement(
+              'div',
+              { className: (0, _classnames2.default)('info', { 'success': this.props.info.status === 'success', 'error': this.props.info.status === 'error' }) },
+              this.props.info.text
+            ) : null
           ),
           _react2.default.createElement(
             'div',

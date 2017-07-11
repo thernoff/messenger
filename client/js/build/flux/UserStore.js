@@ -15,6 +15,7 @@ var friends = void 0;
 var activeFriend = void 0;
 var dialog = void 0;
 var mainImg = void 0;
+var infoMessage = void 0;
 var UserStore = {
     init: function init() {
         //currentUser = currentUser;
@@ -35,6 +36,7 @@ var UserStore = {
         friends = [];
         filterFriends = [], activeFriend = null;
         dialog = [];
+        infoMessage = null;
     },
     setFilterFriends: function setFilterFriends(friends) {
         filterFriends = friends;
@@ -113,6 +115,18 @@ var UserStore = {
             return currentUser._id + '/' + currentUser.mainImg;
         }
         return 'no-avatar.jpg';
+    },
+    setInfoMessage: function setInfoMessage(msg) {
+        infoMessage = msg;
+        console.log('-----UserStore.setInfoMessage-----');
+        console.log(msg);
+        //emitter.emit('change');
+        emitter.emit('newInfoMessage');
+        //setTimeout( function(){infoMessage = ''}.bind(this), 1000);
+        infoMessage = null;
+    },
+    getInfoMessage: function getInfoMessage() {
+        return infoMessage;
     }
 };
 
