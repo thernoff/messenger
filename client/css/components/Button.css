@@ -53,3 +53,7 @@
     margin-left: -27px;
     padding: 5px 10px;
 }
+
+.Button.dialog-body{
+    margin-top: 10px;
+}

@@ -87,7 +87,7 @@ Avatar.propTypes = {
 Avatar.defaultProps = {
     title: '',
     alt: '',
-    src: './avatars/no-avatar.jpg',
+    src: '',
     form: 'round',
     active: false,
     online: true

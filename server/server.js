@@ -6,6 +6,7 @@ import cors from 'cors';
 import * as db from './utils/DataBaseUtils.js';
 import { serverPort } from '../etc/config.json';
 import { imageSettings } from '../etc/config.json';
+import { cloudinarySettings } from '../etc/config.json';
 import socket from 'socket.io';
 import expressHandlebars from 'express-handlebars';
 import credentials from './credentials.js';
@@ -13,13 +14,18 @@ import cookieParser from 'cookie-parser';
 import formidable from 'formidable';
 import fs from 'fs';
 import jimp from 'jimp';
+import cloudinary from 'cloudinary';
+import passwordHash from 'password-hash';
 
 db.setUpConnection();
+
+cloudinary.config( cloudinarySettings );
 
 const app = express();
 
 const handlebars = expressHandlebars.create({
     defaultLayout: 'main',
+    layoutsDir: __dirname + '/views/layouts',
     //extname: '.hbs',
     helpers: {
         section: function(name, options){
@@ -30,52 +36,79 @@ const handlebars = expressHandlebars.create({
         }
     }
 });
+
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
+app.set('views', __dirname + '/views');
 
+app.use('/upload', express.static(__dirname + '/upload'));
 app.use(express.static(__dirname + '/public'));
-
 app.use( bodyParser.json() );
-
 app.use((cookieParser)(credentials.cookieSecret));
 
-// Allow requests from any origin
+// Разрешать запросы от любого источника
 app.use(cors({ origin: '*' }));
 
 app.get('/', function (req, res) {
-    //res.sendfile(__dirname + '/index.html');
+    console.log('process.env.PORT', process.env.PORT);
     res.render('messenger');
 });
 
-app.get('/users', (req, res) => {
-    //db.listUsers().then(data => res.send(data));
-    //console.log('data');
-    res.send('data');
+app.post('/user/create', (req, res) => {
+    //console.log(req.body);
+    db.createUser(req.body)
+        .then( data => res.send(data) )
+        .catch( () => res.send(null) );
 });
 
 app.post('/user/get', (req, res) => {
+    //console.log(req.body);
+    let password = req.body.password;
     db.getUser(req.body)
         .then(
             (data) => {
-                //res.cookie('userId', data._id, {httpOnly: true, signed: true});
-                //let user = db.getFullUser(data);
-                //console.log(user);
-                let arrObjIdsFriends = data.friends;
-                db.getFriends(arrObjIdsFriends)
-                .then(
-                    (arrFriends) => {
-                        //console.log(arrFriends);
-                        data.friends = arrFriends;
-                        //res.send(data);
-                    });
-                //console.log(arrObjIdsFriends);
-                res.send(data);
+                if (data.checkPassword(password)){
+                    res.send(data);
+                } else {
+                    res.send(null);
+                }
             }
         )
         .catch( 
-            ()=> res.send(null) 
+            () => res.send(null) 
         );
 });
+
+app.get('/user/get/:id', (req, res) => {
+    db.getUserById(req.params.id)
+        .then( data => res.send(data) )
+        .catch( () => res.send(null) );
+});
+
+app.get('/user/search/:search', (req, res) => {
+    if (req.params.search){
+        db.searchUser(req.params.search)
+            .then( data => res.send(data) )
+            .catch( () => res.send(null) );
+    }else{
+        res.send(null);
+    }
+});
+
+app.get('/user/search/', (req, res) => {
+    res.send(null);
+});
+
+app.post('/user/update', (req, res) => {
+    //console.log(req.body);
+    db.updateUser(req.body)
+        .then( data =>  res.send(data) )
+        .catch( () => res.send(null) );
+});
+
+/*app.delete('/user/:id', (req, res) => {
+    db.deleteNote(req.params.id).then(data => res.send(data));
+});*/
 
 app.post('/possible/get', (req, res) => {
     db.getPossibleFriends(req.body)
@@ -84,18 +117,19 @@ app.post('/possible/get', (req, res) => {
                 //console.log(data);
                 res.send(data);
             }
-        );
+        )
+        .catch( () => res.send(null) );
 });
 
 app.post('/possible/add', (req, res) => {
-    console.log('/possible/add');
     db.addToPossibleFriends(req.body)
         .then(
             (data) => {
                 //console.log('data: ', data);
                 res.send(data);
             }
-        );
+        )
+        .catch( () => res.send(null) );
 });
 
 app.post('/friends/get', (req, res) => {
@@ -111,55 +145,14 @@ app.post('/friends/get', (req, res) => {
                 //console.log(arrFriends);
                 res.send(arrFriends);
             }
-        );
+        )
+        .catch( () => res.send(null) );
 });
 
 app.post('/friend/add', (req, res) => {
     db.addToFriends(req.body)
-        .then( data => {
-            res.send(data);
-            })
-        .catch( ()=> res.send(null) );
-});
-
-app.post('/user/create', (req, res) => {
-    //console.log(req.body);
-    db.createUser(req.body)
         .then( data => res.send(data) )
-        .catch( ()=> res.send(null) );
-});
-
-app.get('/user/get/:id', (req, res) => {
-    db.getUserById(req.params.id)
-        .then( data => res.send(data) )
-        .catch( ()=> res.send(null) );
-});
-
-app.get('/user/search/', (req, res) => {
-    res.send(null);
-});
-
-app.get('/user/search/:search', (req, res) => {
-    if (req.params.search){
-        db.searchUser(req.params.search)
-        .then( data => res.send(data) )
-        .catch( ()=> res.send(null) );
-    }else{
-        res.send(null);
-    }
-    
-});
-
-app.post('/user/update', (req, res) => {
-    //console.log(req.body);
-    db.updateUser(req.body)
-        .then( data => res.send(data) )
-        .catch( ()=> res.send(null) );
-    
-});
-
-app.delete('/user/:id', (req, res) => {
-    db.deleteNote(req.params.id).then(data => res.send(data));
+        .catch( () => res.send(null) );
 });
 
 app.post('/message/send', (req, res) => {
@@ -184,42 +177,40 @@ app.post('/message/reset', (req, res) => {
 
 app.put('/upload/server/', (req, res) => {
 
-    var dataDir = __dirname + '/public';
-    var avatarPhotoDir = dataDir + '/avatars';
-    if(!fs.existsSync(dataDir)){
+    let dataDir = __dirname + '/upload';
+    //console.log('dataDir: ', dataDir);
+    let avatarPhotoDir = dataDir + '/avatars';
+    //console.log('avatarPhotoDir: ', avatarPhotoDir);
+    if( !fs.existsSync(dataDir) ){
         fs.mkdirSync(dataDir);
     }
-    if(!fs.existsSync(avatarPhotoDir)){
+    if( !fs.existsSync(avatarPhotoDir) ){
         fs.mkdirSync(avatarPhotoDir);
     }
 
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files){
-        //console.log('fields: ', fields);
-        //console.log('files: ', files);
         if(err){
             res.send(null);
         }
         let photo = files.photo;
-        //console.log(imageSettings.types.indexOf(photo.type));
         let currentUserId = fields.currentUserId;
-        let dir = 'public/avatars/' + currentUserId;
-        console.log('photo: ', photo);
+        let dir = avatarPhotoDir + '/' + currentUserId;
+        console.log('dir: ', dir);
+        //console.log('photo: ', photo);
+
         if (photo && ( imageSettings.types.indexOf(photo.type) > -1 ) && ( photo.size < imageSettings.maxSize )){
             
             if(!fs.existsSync(dir)){
                 fs.mkdirSync(dir);
             }
-            //fs.mkdirSync(dir);
-            //fs.renameSync(photo.path, dir + '/' + photo.name);
-            
-            /*saveContestEntry('vacation-photo', fields.email, req.params.year, req.params.month, path);
-            req.session.flash = {
-                type: 'success',
-                intro: 'Удачи!',
-                message: 'Вы стали участником конкурса.',
-            };*/
+
             let src = dir + '/' + photo.name;
+            //console.log('src: ', src);
+            cloudinary.uploader.upload(src, {timestamp: new Date().getTime()},
+                function(error, result) {console.log(result); 
+            });
+            //console.log('photo.path: ', photo.path);
             jimp.read(photo.path)
                 .then(function (image) {
                     let originalWidth = image.bitmap.width;
@@ -228,17 +219,30 @@ app.put('/upload/server/', (req, res) => {
                     let x = Math.round((originalWidth - min)/2);
                     let y = Math.round((originalHeight - min)/2);
                     image.crop(x, y, min, min)
-                        .resize(200, jimp.AUTO)               // resize
+                        .resize(200, jimp.AUTO)      // resize
                         .quality(70)                 // set JPEG quality
                         .write(src);                 // save
-
-                    db.updateUser({_id: currentUserId, mainImg: photo.name})
-                        .then(
-                            (data) => {
-                                //console.log(data);
-                                res.send(data);
-                            }
-                        ).catch( ()=> res.send(null) );
+                    if (process.env.PORT){
+                        cloudinary.v2.uploader.upload(src, {folder: currentUserId, timestamp: new Date().getTime()}, function(error, result) {
+                            //console.log( result );
+                            db.updateUser({_id: currentUserId, mainImg: cloudinary.url( result.public_id )})
+                            .then(
+                                (data) => {
+                                    //console.log(data);
+                                    res.send(data);
+                                })
+                            .catch( ()=> res.send(null) );
+                        });
+                    }else{
+                        let url = "./upload/avatars/" + currentUserId + "/" + photo.name;
+                        db.updateUser({_id: currentUserId, mainImg: url})
+                            .then(
+                                (data) => {
+                                    //console.log(data);
+                                    res.send(data);
+                                }
+                            ).catch( ()=> res.send(null) );
+                    }
                     })
                 .catch(function (err) {
                     console.error(err);
@@ -251,8 +255,10 @@ app.put('/upload/server/', (req, res) => {
     });
 });
 
-const server = app.listen(serverPort, () => {
-    console.log(`Server is up and running on port ${serverPort}`);
+app.set('port', (process.env.PORT || serverPort));
+
+const server = app.listen(app.get('port'), () => {
+    console.log(`Server is up and running on port ${app.get('port')}`);
 });
 
 const io = socket.listen(server);
@@ -264,7 +270,6 @@ io.sockets.on('connection', function(client){
     //console.log(client.id);
     client.on('auth', function(currentUserId){
         if (!objClients[currentUserId]){
-            //objClients[client.id] = userId;
             objClients[currentUserId] = client.id;
         }
         //console.log('objClients: ', objClients);
@@ -296,7 +301,6 @@ io.sockets.on('connection', function(client){
         }        
         //console.log('objClients: ', objClients);
         io.sockets.emit('offline', currentUserId);
-        //io.sockets.emit('hello', {hello: 'Одно подключение потеряно.'});
         console.log('Client ' + client.id + ' disconnected');
     });
 });

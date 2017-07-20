@@ -1,13 +1,23 @@
 {
     "apiPrefix": "http://localhost:8080",
+    "apiPrefixLocal": "http://localhost:8080",
+    "apiPrefixRemote": "https://fathomless-stream-70111.herokuapp.com",
     "serverPort": "8080",
     "db":{
         "name": "messenger",
         "host": "localhost",
         "port": 27017
     },
+    "remoteDataBase":{
+        "uri": "mongodb://xavierz:m1AbC0m93@ds157112.mlab.com:57112/messenger"
+    },
     "imageSettings":{
         "maxSize": 1000000,
         "types": ["image/png", "image/jpeg"]
+    },
+    "cloudinarySettings": { 
+        "cloud_name": "xavierz", 
+        "api_key": "795787284857866", 
+        "api_secret": "u_eSOKBD3IpZkNIeyuJOYRzszNM"
     }
 }

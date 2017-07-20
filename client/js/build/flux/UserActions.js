@@ -15,16 +15,22 @@ var _UserStore2 = _interopRequireDefault(_UserStore);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var UserActions = {
-    loadUsers: function loadUsers() {
-        var data = _api2.default.listUsers();
-    },
+
+    //Создаем нового пользователя
     createUser: function createUser(user) {
         _api2.default.createUser(user).then(function (res) {
-            _UserStore2.default.setUser(res.data);
+            if (res.data) {
+                _UserStore2.default.setUser(res.data);
+            } else {
+                _UserStore2.default.setInfoMessage({ status: 'error', text: 'Ошибка: Пользователь с таким логином уже существует.' });
+            }
         }).catch(function (err) {
             return console.error(err);
         });
     },
+
+
+    //Обновляем данные пользователя
     updateUser: function updateUser(user) {
         var _this = this;
 
@@ -32,54 +38,16 @@ var UserActions = {
             console.log('-----UserActions.updateUser-----');
             console.log('-----пришел результат с сервера-----');
             console.log(res.data);
-            var currentUser = _UserStore2.default.getCurrentUser();
-            if (currentUser._id === user._id) {
-                _this._setPossibleFriends(res.data.possibleFriends);
-                _UserStore2.default.setUser(res.data);
-            } else {
-                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: user._id });
-                //this._setPossibleFriends(res.data.possibleFriends);
-                //UserStore.setUser(res.data);
-            }
-        }).catch(function (err) {
-            return console.error(err);
-        });
-    },
-
-    //Метод посылает запрос на добавление в друзья друг другу для currentUser и possibleFriend
-    //В res приходит объект currentUser (текущий пользователь)
-    addToFriends: function addToFriends(currentUser, possibleFriend) {
-        var _this2 = this;
-
-        _api2.default.addToFriends(currentUser, possibleFriend).then(function (res) {
-            var currentUser = _UserStore2.default.getCurrentUser();
-            if (currentUser._id === res.data._id) {
-                console.log('-----UserActions.addToFriends-----');
-                console.log(res.data);
-                _this2._setFriends(res.data.friends);
-                _this2._setPossibleFriends(res.data.possibleFriends);
-                _UserStore2.default.setUser(res.data);
-                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: possibleFriend._id });
-            }
-        }).catch(function (err) {
-            return console.error(err);
-        });
-    },
-
-
-    //Метод посылает запрос от currentUser на добавление в возможные друзья possibleFriend
-    addToPossibleFriends: function addToPossibleFriends(currentUser, possibleFriend) {
-        var _this3 = this;
-
-        _api2.default.addToPossibleFriends(currentUser, possibleFriend).then(function (res) {
-            var currentUser = _UserStore2.default.getCurrentUser();
-            if (currentUser._id === res.data._id) {
-                console.log('-----UserActions.addToPossibleFriends-----');
-                console.log(res.data);
-                _this3._setFriends(res.data.friends);
-                _this3._setPossibleFriends(res.data.possibleFriends);
-                _UserStore2.default.setUser(res.data);
-                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: possibleFriend._id });
+            if (res.data) {
+                var currentUser = _UserStore2.default.getCurrentUser();
+                if (currentUser._id === user._id) {
+                    _this._setPossibleFriends(res.data.possibleFriends);
+                    _UserStore2.default.setUser(res.data);
+                } else {
+                    socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: user._id });
+                    //this._setPossibleFriends(res.data.possibleFriends);
+                    //UserStore.setUser(res.data);
+                }
             }
         }).catch(function (err) {
             return console.error(err);
@@ -89,7 +57,7 @@ var UserActions = {
 
     //Получаем объект User из базы даных по логину и паролю, после чего сохраняем его в Хранилище
     getUser: function getUser(data) {
-        var _this4 = this;
+        var _this2 = this;
 
         var login = data.login;
         var password = data.password;
@@ -101,20 +69,23 @@ var UserActions = {
                 _UserStore2.default.setUser(res.data);
                 console.log('-----заполняем друзей-----');
                 console.log(res.data.friends);
-                _this4._setFriends(res.data.friends);
+                _this2._setFriends(res.data.friends);
                 console.log('-----заполняем возможных друзей-----');
                 console.log(res.data.possibleFriends);
-                _this4._setPossibleFriends(res.data.possibleFriends);
+                _this2._setPossibleFriends(res.data.possibleFriends);
                 socket.emit('auth', res.data._id);
+            } else {
+                _UserStore2.default.setInfoMessage({ status: 'error', text: 'Ошибка: Неверный логин или пароль.' });
             }
         }).catch(function (err) {
             return console.error(err);
         });
     },
 
+
     //Получаем объект User из базы даных по id, после чего сохраняем его в Хранилище
     getUserById: function getUserById(id) {
-        var _this5 = this;
+        var _this3 = this;
 
         _api2.default.getUserById(id).then(function (res) {
             console.log('-----UserActions.getUserById-----');
@@ -123,10 +94,61 @@ var UserActions = {
             _UserStore2.default.setUser(res.data);
             console.log('-----заполняем друзей-----');
             console.log(res.data.friends);
-            _this5._setFriends(res.data.friends);
+            _this3._setFriends(res.data.friends);
             console.log('-----заполняем возможных друзей-----');
             console.log(res.data.possibleFriends);
-            _this5._setPossibleFriends(res.data.possibleFriends);
+            _this3._setPossibleFriends(res.data.possibleFriends);
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+
+
+    /*deleteUser(userId) {
+        api.deleteUser(noteId)
+        .then(() =>
+            this.loadUsers()
+        )
+        .catch(err =>
+            console.error(err)
+        );
+    },*/
+
+    //Метод посылает запрос на добавление в друзья друг другу для currentUser и possibleFriend
+    //В res приходит объект currentUser (текущий пользователь)
+    addToFriends: function addToFriends(currentUser, possibleFriend) {
+        var _this4 = this;
+
+        _api2.default.addToFriends(currentUser, possibleFriend).then(function (res) {
+            var currentUser = _UserStore2.default.getCurrentUser();
+            if (currentUser._id === res.data._id) {
+                console.log('-----UserActions.addToFriends-----');
+                console.log(res.data);
+                _this4._setFriends(res.data.friends);
+                _this4._setPossibleFriends(res.data.possibleFriends);
+                _UserStore2.default.setUser(res.data);
+                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: possibleFriend._id });
+            }
+        }).catch(function (err) {
+            return console.error(err);
+        });
+    },
+
+
+    //Метод посылает запрос от currentUser на добавление в возможные друзья possibleFriend
+    addToPossibleFriends: function addToPossibleFriends(currentUser, possibleFriend) {
+        var _this5 = this;
+
+        _api2.default.addToPossibleFriends(currentUser, possibleFriend).then(function (res) {
+            var currentUser = _UserStore2.default.getCurrentUser();
+            if (currentUser._id === res.data._id) {
+                console.log('-----UserActions.addToPossibleFriends-----');
+                console.log(res.data);
+                _this5._setFriends(res.data.friends);
+                _this5._setPossibleFriends(res.data.possibleFriends);
+                _UserStore2.default.setUser(res.data);
+                socket.emit('update', { currentUserId: currentUser._id, possibleFriendId: possibleFriend._id });
+            }
         }).catch(function (err) {
             return console.error(err);
         });
@@ -185,8 +207,6 @@ var UserActions = {
         if (!needle) {
             var friends = _UserStore2.default.getFriends();
             _UserStore2.default.setFriends(friends);
-            //UserStore.setFilterFriends([]);
-            //UserStore.setFriends(this._preSearchFriends);
             return;
         }
 
@@ -227,15 +247,6 @@ var UserActions = {
         _api2.default.searchUser(search).then(function (res) {
             console.log('UserActions.searchFriend: ', res.data);
             _UserStore2.default.setSearchFriends(res.data);
-        }).catch(function (err) {
-            return console.error(err);
-        });
-    },
-    deleteUser: function deleteUser(userId) {
-        var _this6 = this;
-
-        _api2.default.deleteUser(noteId).then(function () {
-            return _this6.loadUsers();
         }).catch(function (err) {
             return console.error(err);
         });

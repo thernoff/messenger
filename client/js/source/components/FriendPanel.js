@@ -17,7 +17,6 @@ class FriendPanel extends Component{
             maxFriendId: 4,
         };
         UserStore.addListener('change', () => {
-            //console.log(UserStore.getPossibleFriends());
             this.setState({
                 possibleFriends: UserStore.getPossibleFriends(),
                 currentUser: UserStore.getCurrentUser(),
@@ -33,7 +32,6 @@ class FriendPanel extends Component{
         UserStore.addListener('filterFriends', () => {
             this.setState({
                 friends: UserStore.getFilterFriends(),
-                //filterFriends: UserStore.getFilterFriends(),
                 activeFriend: UserStore.getActiveFriend(),
                 minFriendId: 0,
                 maxFriendId: 4,
@@ -44,8 +42,8 @@ class FriendPanel extends Component{
     _moveLeftListFriends(){
         let minFriendId = this.state.minFriendId;
         let maxFriendId = this.state.maxFriendId;
-        console.log('minFriendId: ', minFriendId);
-        console.log('maxFriendId: ', maxFriendId);
+        //console.log('minFriendId: ', minFriendId);
+        //console.log('maxFriendId: ', maxFriendId);
         if (minFriendId - 1 < 0) return;
         this.setState({
             minFriendId: --minFriendId,
@@ -57,8 +55,8 @@ class FriendPanel extends Component{
         let minFriendId = this.state.minFriendId;
         let maxFriendId = this.state.maxFriendId;
         let countFriends = this.state.friends.length;
-        console.log('minFriendId: ', minFriendId);
-        console.log('maxFriendId: ', maxFriendId);
+        //console.log('minFriendId: ', minFriendId);
+        //console.log('maxFriendId: ', maxFriendId);
         if (maxFriendId + 1 >= countFriends) return;
         this.setState({
             minFriendId: ++minFriendId,
@@ -76,7 +74,8 @@ class FriendPanel extends Component{
                     </div>
                     <div className="col-xs-5">
                         <div className="WhinepadToolbarSearch">
-                            <input 
+                            <input
+                            placeholder="Введите имя друга"
                             onChange={UserActions.filterSearch.bind(UserActions)}
                             onFocus={UserActions.startFilterSearch.bind(UserActions)}
                             />
@@ -95,19 +94,12 @@ class FriendPanel extends Component{
                     <div className="col-xs-1">
                         <div><Button className="friend-panel-arrow left" onClick={this._moveLeftListFriends.bind(this)}> <span>&#8249;</span></Button></div>
                     </div>                    
-                    
                     <div className='col-xs-10'>
                         <div className="avatar-list">
                             {
                                 this.state.friends.length > 0 
                                 ? this.state.friends.map((friend, idx) => {
-                                    //console.log('this.state.activeFriend:', this.state.activeFriend);
-                                    //console.log('friend:', friend);
-                                    //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
                                     let pos = this.state.currentUser.friends.map((friend) => {return friend.id}).indexOf(friend._id);
-                                    //console.log('this.state.currentUser.friends[pos]:', this.state.currentUser.friends);
-                                    //console.log('pos:', pos);
-                                    //console.log('idx:', idx);
                                     let numNewMessages = this.state.currentUser.friends[pos].numNewMessages;
                                     if (idx >= this.state.minFriendId && idx <= this.state.maxFriendId){
                                         return <Avatar
@@ -116,7 +108,7 @@ class FriendPanel extends Component{
                                             size='small' 
                                             form='round'
                                             online={friend.online}
-                                            src={friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg'} 
+                                            src={ friend.mainImg ? friend.mainImg : './images/no-avatar.jpg' }
                                             title={friend.firstname + ' ' + friend.lastname} 
                                             alt={friend.login} 
                                             id={friend._id}
@@ -127,12 +119,8 @@ class FriendPanel extends Component{
                                             }}
                                         />
                                     }
-                                    
                                 }, this)
                                 : <div className="friend-panel-info"> Друзья с заданными параметрами отсутствуют.</div>
-                                //(this.state.possibleFriends.length > 0) 
-                                    //? this.state.possibleFriends.length
-                                    //: this.state.possibleFriends.length
                             }
                         </div>
                     </div>

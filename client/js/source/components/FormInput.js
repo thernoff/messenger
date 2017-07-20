@@ -36,6 +36,8 @@ class FormInput extends Component {
         return <textarea {...common} />;
       case 'file':
         return <input {...common} type="file"/>;
+      case 'email':
+        return <input {...common} type="email"/>;
       default:
         if (this.props.error){
           //return <input {...common} style={{border: '1px solid red'}} type="text" />;
@@ -46,8 +48,7 @@ class FormInput extends Component {
 }
 
 FormInput.propTypes = {
-    type: PropTypes.oneOf(['year', 'suggest', 'rating', 'text',
-    'input']),
+    type: PropTypes.oneOf(['year', 'suggest', 'rating', 'text', 'email', 'input']),
     id: PropTypes.string,
     options: PropTypes.array,
     // как в вариантах автозаполнения <option>

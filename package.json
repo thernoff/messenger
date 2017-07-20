@@ -2,8 +2,9 @@
   "name": "messenger",
   "version": "1.0.0",
   "description": "Messenger",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -11,13 +12,16 @@
   "dependencies": {
     "axios": "^0.16.2",
     "body-parser": "^1.17.2",
+    "cloudinary": "^1.9.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.3",
     "express": "^4.15.3",
     "express-handlebars": "^3.0.0",
     "formidable": "^1.1.1",
+    "htmlspecialchars": "^1.0.5",
     "jimp": "^0.2.28",
     "mongoose": "^4.10.6",
+    "password-hash": "^1.2.2",
     "socket.io": "^2.0.3"
   },
   "devDependencies": {

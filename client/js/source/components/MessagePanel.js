@@ -53,28 +53,28 @@ class MessagePanel extends Component{
                         let activeFriend = this.state.activeFriend;
                         if (objMessage.ownerId === currentUser._id){
                             name = currentUser.firstname + ' ' + currentUser.lastname;
-                                return <div className="row">
-                                            <div className="col-xs-2">
-                                                <span className="name-current-user">{name}</span>
-                                            </div>
-                                            <div className="col-xs-8">
-                                                <span className="message-current-user">{objMessage.text}</span>
-                                            </div>
-                                            <div className="col-xs-2">
-                                            </div>
-                                        </div>
+                            return <div className="row">
+                                    <div className="col-xs-2">
+                                        <span className="name-current-user">{name}</span>
+                                    </div>
+                                    <div className="col-xs-8">
+                                        <span className="message-current-user">{objMessage.text}</span>
+                                    </div>
+                                    <div className="col-xs-2">
+                                    </div>
+                                </div>
                         }else{
                             name = activeFriend.firstname + ' ' + activeFriend.lastname;
                             return <div className="row">
-                                            <div className="col-xs-2">
-                                            </div>
-                                            <div className="col-xs-8">
-                                               <span className="message-active-friend">{objMessage.text}</span>
-                                            </div>
-                                            <div className="col-xs-2">
-                                                 <span className="name-active-friend">{name}</span>
-                                            </div>
-                                        </div>
+                                    <div className="col-xs-2">
+                                    </div>
+                                    <div className="col-xs-8">
+                                        <span className="message-active-friend">{objMessage.text}</span>
+                                    </div>
+                                    <div className="col-xs-2">
+                                            <span className="name-active-friend">{name}</span>
+                                    </div>
+                                </div>
                         }
                     })
                 }

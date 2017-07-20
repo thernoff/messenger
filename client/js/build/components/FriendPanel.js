@@ -52,7 +52,6 @@ var FriendPanel = function (_Component) {
             maxFriendId: 4
         };
         _UserStore2.default.addListener('change', function () {
-            //console.log(UserStore.getPossibleFriends());
             _this.setState({
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
                 currentUser: _UserStore2.default.getCurrentUser(),
@@ -68,7 +67,6 @@ var FriendPanel = function (_Component) {
         _UserStore2.default.addListener('filterFriends', function () {
             _this.setState({
                 friends: _UserStore2.default.getFilterFriends(),
-                //filterFriends: UserStore.getFilterFriends(),
                 activeFriend: _UserStore2.default.getActiveFriend(),
                 minFriendId: 0,
                 maxFriendId: 4
@@ -82,8 +80,8 @@ var FriendPanel = function (_Component) {
         value: function _moveLeftListFriends() {
             var minFriendId = this.state.minFriendId;
             var maxFriendId = this.state.maxFriendId;
-            console.log('minFriendId: ', minFriendId);
-            console.log('maxFriendId: ', maxFriendId);
+            //console.log('minFriendId: ', minFriendId);
+            //console.log('maxFriendId: ', maxFriendId);
             if (minFriendId - 1 < 0) return;
             this.setState({
                 minFriendId: --minFriendId,
@@ -96,8 +94,8 @@ var FriendPanel = function (_Component) {
             var minFriendId = this.state.minFriendId;
             var maxFriendId = this.state.maxFriendId;
             var countFriends = this.state.friends.length;
-            console.log('minFriendId: ', minFriendId);
-            console.log('maxFriendId: ', maxFriendId);
+            //console.log('minFriendId: ', minFriendId);
+            //console.log('maxFriendId: ', maxFriendId);
             if (maxFriendId + 1 >= countFriends) return;
             this.setState({
                 minFriendId: ++minFriendId,
@@ -134,6 +132,7 @@ var FriendPanel = function (_Component) {
                             'div',
                             { className: 'WhinepadToolbarSearch' },
                             _react2.default.createElement('input', {
+                                placeholder: '\u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u0438\u043C\u044F \u0434\u0440\u0443\u0433\u0430',
                                 onChange: _UserActions2.default.filterSearch.bind(_UserActions2.default),
                                 onFocus: _UserActions2.default.startFilterSearch.bind(_UserActions2.default)
                             })
@@ -179,15 +178,9 @@ var FriendPanel = function (_Component) {
                             'div',
                             { className: 'avatar-list' },
                             this.state.friends.length > 0 ? this.state.friends.map(function (friend, idx) {
-                                //console.log('this.state.activeFriend:', this.state.activeFriend);
-                                //console.log('friend:', friend);
-                                //console.log((this.state.activeFriend !== null && this.state.activeFriend._id === friend._id));
                                 var pos = _this2.state.currentUser.friends.map(function (friend) {
                                     return friend.id;
                                 }).indexOf(friend._id);
-                                //console.log('this.state.currentUser.friends[pos]:', this.state.currentUser.friends);
-                                //console.log('pos:', pos);
-                                //console.log('idx:', idx);
                                 var numNewMessages = _this2.state.currentUser.friends[pos].numNewMessages;
                                 if (idx >= _this2.state.minFriendId && idx <= _this2.state.maxFriendId) {
                                     return _react2.default.createElement(_Avatar2.default, {
@@ -196,7 +189,7 @@ var FriendPanel = function (_Component) {
                                         size: 'small',
                                         form: 'round',
                                         online: friend.online,
-                                        src: friend.mainImg ? 'avatars/' + friend._id + '/' + friend.mainImg : 'avatars/no-avatar.jpg',
+                                        src: friend.mainImg ? friend.mainImg : './images/no-avatar.jpg',
                                         title: friend.firstname + ' ' + friend.lastname,
                                         alt: friend.login,
                                         id: friend._id,
@@ -212,10 +205,6 @@ var FriendPanel = function (_Component) {
                                 { className: 'friend-panel-info' },
                                 ' \u0414\u0440\u0443\u0437\u044C\u044F \u0441 \u0437\u0430\u0434\u0430\u043D\u043D\u044B\u043C\u0438 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0430\u043C\u0438 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u044E\u0442.'
                             )
-                            //(this.state.possibleFriends.length > 0) 
-                            //? this.state.possibleFriends.length
-                            //: this.state.possibleFriends.length
-
                         )
                     ),
                     _react2.default.createElement(

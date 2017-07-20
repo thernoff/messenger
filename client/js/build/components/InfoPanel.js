@@ -44,8 +44,6 @@ var InfoPanel = function (_Component) {
             mainImg: _UserStore2.default.getMainImg()
         };
         _UserStore2.default.addListener('change', function () {
-            //let currentUser = UserStore.getCurrentUser();
-            //console.log(currentUser);
             _this.setState({
                 currentUser: _UserStore2.default.getCurrentUser(),
                 possibleFriends: _UserStore2.default.getPossibleFriends(),
@@ -70,7 +68,7 @@ var InfoPanel = function (_Component) {
                         _react2.default.createElement(_Avatar2.default, {
                             size: 'medium',
                             form: 'round',
-                            src: this.state.mainImg ? './avatars/' + this.state.mainImg : this.state.mainImg,
+                            src: this.state.mainImg,
                             onClick: this.props.onUploadPhoto
                         })
                     ),
@@ -96,7 +94,7 @@ var InfoPanel = function (_Component) {
                             { className: 'row' },
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'info-panel', onClick: this.props.onEdit },
+                                { className: 'info-panel', title: '\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C', onClick: this.props.onEdit },
                                 _react2.default.createElement('i', { className: 'fa fa-pencil-square-o', 'aria-hidden': 'true' })
                             )
                         ),
@@ -105,7 +103,7 @@ var InfoPanel = function (_Component) {
                             { className: 'row' },
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'info-panel', onClick: this.props.onAdd },
+                                { className: 'info-panel', title: '\u041F\u043E\u0438\u0441\u043A \u043D\u043E\u0432\u044B\u0445 \u0434\u0440\u0443\u0437\u0435\u0439', onClick: this.props.onAdd },
                                 _react2.default.createElement('i', { className: 'fa fa-search-plus', 'aria-hidden': 'true' })
                             )
                         ),
@@ -114,7 +112,7 @@ var InfoPanel = function (_Component) {
                             { className: 'row' },
                             _react2.default.createElement(
                                 _Button2.default,
-                                { className: 'info-panel', onClick: this.props.onNew },
+                                { className: 'info-panel', title: '\u0417\u0430\u044F\u0432\u043A\u0438 \u0432 \u0434\u0440\u0443\u0437\u044C\u044F', onClick: this.props.onNew },
                                 _react2.default.createElement('i', { className: 'fa fa-user', 'aria-hidden': 'true' })
                             ),
                             this.state.possibleFriends && this.state.possibleFriends.length > 0 ? _react2.default.createElement(

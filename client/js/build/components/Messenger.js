@@ -49,8 +49,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-//import Panels from './Panels';
-
 
 var Messenger = function (_Component) {
     _inherits(Messenger, _Component);
@@ -82,6 +80,12 @@ var Messenger = function (_Component) {
             _this.setState({
                 info: _UserStore2.default.getInfoMessage()
             });
+
+            /*setTimeout(function(){
+                let info = UserStore.getInfoMessage();
+                console.log('info: ', info);
+                this.setState({info: info});
+            }.bind(this), 3000);*/
         });
         return _this;
     }
@@ -105,7 +109,8 @@ var Messenger = function (_Component) {
                 {
                     modal: true,
                     header: '\u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0443\u0439\u0442\u0435\u0441\u044C',
-                    onAction: this._authUser.bind(this)
+                    onAction: this._authUser.bind(this),
+                    info: this.state.info
                 },
                 _react2.default.createElement(_Form2.default, {
                     ref: 'authForm',
@@ -113,7 +118,7 @@ var Messenger = function (_Component) {
                 }),
                 _react2.default.createElement(
                     _Button2.default,
-                    { onClick: this._actionClick.bind(this, 'registerForm') },
+                    { className: 'dialog-body', onClick: this._actionClick.bind(this, 'registerForm') },
                     '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F'
                 )
             );
@@ -153,15 +158,16 @@ var Messenger = function (_Component) {
                 {
                     modal: true,
                     header: '\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F',
-                    onAction: this._registerUser.bind(this)
+                    onAction: this._registerUser.bind(this),
+                    info: this.state.info
                 },
                 _react2.default.createElement(_Form2.default, {
                     ref: 'registerForm',
-                    fields: [{ label: 'Логин', id: 'login', error: this.state.errorLogin }, { label: 'Пароль', id: 'password', error: this.state.errorPassword }, { label: 'Email', id: 'email', error: this.state.errorEmail }]
+                    fields: [{ label: 'Логин', id: 'login', error: this.state.errorLogin }, { label: 'Пароль', id: 'password', error: this.state.errorPassword }]
                 }),
                 _react2.default.createElement(
                     _Button2.default,
-                    { onClick: this._actionClick.bind(this, 'authForm') },
+                    { className: 'dialog-body', onClick: this._actionClick.bind(this, 'authForm') },
                     '\u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F'
                 )
             );
@@ -172,8 +178,7 @@ var Messenger = function (_Component) {
 
             this.setState({
                 errorLogin: false,
-                errorPassword: false,
-                errorEmail: false
+                errorPassword: false
             });
 
             var data = this.refs.registerForm.getData();
@@ -186,8 +191,7 @@ var Messenger = function (_Component) {
                             this.setState({ errorLogin: true });
                         case 'errorPassword':
                             this.setState({ errorPassword: true });
-                        case 'errorEmail':
-                            this.setState({ errorEmail: true });
+                        //case 'errorEmail': this.setState({errorEmail: true});
                     }
                     emptyField = true;
                 }
@@ -195,8 +199,6 @@ var Messenger = function (_Component) {
             if (!emptyField) {
                 _UserActions2.default.createUser(data);
             }
-
-            //console.log(data);
         }
     }, {
         key: '_renderEditProfileForm',
@@ -212,8 +214,8 @@ var Messenger = function (_Component) {
                 },
                 _react2.default.createElement(_Form2.default, {
                     ref: 'editProfileForm',
-                    fields: [{ label: 'Логин', id: 'login', error: this.state.errorLogin }, { label: 'Пароль', id: 'password', error: this.state.errorPassword }, { label: 'Имя', id: 'firstname' }, { label: 'Фамилия', id: 'lastname' }, { label: 'Email', id: 'email', error: this.state.errorEmail }],
-                    initialData: { login: currentUser.login, password: currentUser.password, firstname: currentUser.firstname, lastname: currentUser.lastname, email: currentUser.email }
+                    fields: [{ label: 'Логин', id: 'login', error: this.state.errorLogin }, { label: 'Новый пароль', id: 'password' }, { label: 'Имя', id: 'firstname' }, { label: 'Фамилия', id: 'lastname' }, { label: 'Email', id: 'email' }],
+                    initialData: { login: currentUser.login, password: '', firstname: currentUser.firstname, lastname: currentUser.lastname, email: currentUser.email }
                 })
             );
         }
@@ -238,14 +240,13 @@ var Messenger = function (_Component) {
                     switch (error) {
                         case 'errorLogin':
                             this.setState({ errorLogin: true });emptyField = true;
-                        case 'errorPassword':
-                            this.setState({ errorPassword: true });emptyField = true;
-                        case 'errorEmail':
-                            this.setState({ errorEmail: true });emptyField = true;
+                        //case 'errorPassword': this.setState({errorPassword: true}); emptyField = true;
+                        //case 'errorEmail': this.setState({errorEmail: true}); emptyField = true;
                     }
                 }
             }
             if (!emptyField) {
+                console.log('yes');
                 data._id = this.state.currentUser._id;
                 _UserActions2.default.updateUser(data);
             }
@@ -288,12 +289,123 @@ var Messenger = function (_Component) {
             }
         }
 
+        //Метод отображает результат поиска друзей
+
+    }, {
+        key: '_renderSearchPossibleFriendList',
+        value: function _renderSearchPossibleFriendList() {
+            var _this2 = this;
+
+            var arrSearchFriends = this.state.searchFriends ? this.state.searchFriends : [];
+            console.log('Messenger._renderSearchPossibleFriendList arrSearchFriends: ', arrSearchFriends);
+            return _react2.default.createElement(
+                _Dialog2.default,
+                {
+                    modal: true,
+                    header: '\u0412\u043E\u0437\u043C\u043E\u0436\u043D\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
+                    onAction: this._cancel.bind(this),
+                    hasCancel: false
+                },
+                arrSearchFriends.length > 0 ? arrSearchFriends.map(function (friend, idx) {
+                    if (friend.inFriends) {
+                        return _react2.default.createElement(
+                            'p',
+                            null,
+                            friend.firstname,
+                            ' ',
+                            friend.lastname,
+                            ' ',
+                            _react2.default.createElement(
+                                'span',
+                                { style: { color: '#0d9c12' } },
+                                _react2.default.createElement('i', { className: 'fa fa-check', 'aria-hidden': 'true' })
+                            )
+                        );
+                    } else {
+                        return _react2.default.createElement(
+                            'p',
+                            null,
+                            friend.firstname,
+                            ' ',
+                            friend.lastname,
+                            ' ',
+                            _react2.default.createElement(
+                                _Button2.default,
+                                { onClick: _this2._sendRequestAddToFriends.bind(_this2, friend) },
+                                '+'
+                            )
+                        );
+                    }
+                }) : _react2.default.createElement(
+                    'p',
+                    null,
+                    '\u0421\u043F\u0438\u0441\u043E\u043A \u043F\u0443\u0441\u0442'
+                )
+            );
+        }
+    }, {
+        key: '_sendRequestAddToFriends',
+        value: function _sendRequestAddToFriends(possibleFriend) {
+            var currentUser = this.state.currentUser;
+            _UserActions2.default.addToPossibleFriends(currentUser, possibleFriend);
+        }
+
+        //Метод отображает список пользователей, желающих добавиться в друзья
+
+    }, {
+        key: '_renderNewFriendList',
+        value: function _renderNewFriendList() {
+            var _this3 = this;
+
+            var arrPossibleFriends = this.state.possibleFriends;
+            return _react2.default.createElement(
+                _Dialog2.default,
+                {
+                    modal: true,
+                    header: '\u041D\u043E\u0432\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
+                    onAction: this._cancel.bind(this),
+                    hasCancel: false
+                },
+                arrPossibleFriends.map(function (friend, idx) {
+                    return _react2.default.createElement(
+                        'p',
+                        null,
+                        friend.firstname,
+                        ' ',
+                        friend.lastname,
+                        ' ',
+                        _react2.default.createElement(
+                            _Button2.default,
+                            { onClick: _this3._addToFriends.bind(_this3, friend) },
+                            '+'
+                        )
+                    );
+                })
+            );
+        }
+        //Метод добавляет в друзья пользователей, приславшие заявки на добавление
+
+    }, {
+        key: '_addToFriends',
+        value: function _addToFriends(possibleFriend) {
+            var currentUser = this.state.currentUser;
+            //Проверяем наличие объекта possibleFriend в массиве currentUser.friends
+            var position = currentUser.friends.map(function (friend) {
+                return friend.id;
+            }).indexOf(possibleFriend._id);
+            if (position < 0) {
+                //console.log('CURRENTUSER: ', currentUser);
+                _UserActions2.default.addToFriends(currentUser, possibleFriend);
+            } else {
+                console.log('Пользователь уже добавлен.');
+            }
+        }
+
         //Метод отображает форму для загрузки фотографий
 
     }, {
         key: '_renderUploadPhotoForm',
         value: function _renderUploadPhotoForm() {
-            var arrPossibleFriends = this.state.possibleFriends;
             return _react2.default.createElement(
                 _Dialog2.default,
                 {
@@ -329,108 +441,18 @@ var Messenger = function (_Component) {
             data.append('photo', document.getElementById('file').files[0]);
             _UserActions2.default.uploadPhoto(data);
         }
-
-        //Метод отображает список пользователей, желающих добавиться в друзья
-
-    }, {
-        key: '_renderNewFriendList',
-        value: function _renderNewFriendList() {
-            var _this2 = this;
-
-            var arrPossibleFriends = this.state.possibleFriends;
-            return _react2.default.createElement(
-                _Dialog2.default,
-                {
-                    modal: true,
-                    header: '\u041D\u043E\u0432\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
-                    onAction: this._cancel.bind(this),
-                    hasCancel: false
-                },
-                arrPossibleFriends.map(function (friend, idx) {
-                    return _react2.default.createElement(
-                        'p',
-                        null,
-                        friend.firstname,
-                        ' ',
-                        friend.lastname,
-                        ' ',
-                        _react2.default.createElement(
-                            _Button2.default,
-                            { onClick: _this2._addToFriends.bind(_this2, friend) },
-                            '+'
-                        )
-                    );
-                })
-            );
-        }
-        //Метод добавляет в друзья пользователей, приславшие заявки на добавление
-
-    }, {
-        key: '_addToFriends',
-        value: function _addToFriends(possibleFriend) {
-            var currentUser = this.state.currentUser;
-            //Проверяем наличие объекта possibleFriend в массиве currentUser.friends
-            var position = currentUser.friends.map(function (friend) {
-                return friend.id;
-            }).indexOf(possibleFriend._id);
-            if (position < 0) {
-                //console.log('CURRENTUSER: ', currentUser);
-                _UserActions2.default.addToFriends(currentUser, possibleFriend);
-            } else {
-                console.log('Пользователь уже добавлен.');
-            }
-        }
-    }, {
-        key: '_renderSearchPossibleFriendList',
-        value: function _renderSearchPossibleFriendList() {
-            var _this3 = this;
-
-            var arrSearchFriends = this.state.searchFriends ? this.state.searchFriends : [];
-            return _react2.default.createElement(
-                _Dialog2.default,
-                {
-                    modal: true,
-                    header: '\u0412\u043E\u0437\u043C\u043E\u0436\u043D\u044B\u0435 \u0434\u0440\u0443\u0437\u044C\u044F',
-                    onAction: this._cancel.bind(this),
-                    hasCancel: false
-                },
-                arrSearchFriends.length > 0 ? arrSearchFriends.map(function (friend, idx) {
-                    console.log('FRIEND', friend);
-                    return _react2.default.createElement(
-                        'p',
-                        null,
-                        friend.firstname,
-                        ' ',
-                        friend.lastname,
-                        ' ',
-                        _react2.default.createElement(
-                            _Button2.default,
-                            { onClick: _this3._sendRequestAddToFriends.bind(_this3, friend) },
-                            '+'
-                        )
-                    );
-                }) : _react2.default.createElement(
-                    'p',
-                    null,
-                    '\u0421\u043F\u0438\u0441\u043E\u043A \u043F\u0443\u0441\u0442'
-                )
-            );
-        }
     }, {
         key: '_cancel',
         value: function _cancel() {
             this.setState({ typeForm: null, info: _UserStore2.default.getInfoMessage() });
         }
     }, {
-        key: '_sendRequestAddToFriends',
-        value: function _sendRequestAddToFriends(possibleFriend) {
-            var currentUser = this.state.currentUser;
-            _UserActions2.default.addToPossibleFriends(currentUser, possibleFriend);
-        }
-    }, {
         key: '_actionClick',
         value: function _actionClick(typeForm) {
-            this.setState({ typeForm: typeForm });
+            this.setState({
+                typeForm: typeForm,
+                info: _UserStore2.default.getInfoMessage()
+            });
         }
     }, {
         key: 'render',

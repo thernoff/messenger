@@ -1,9 +1,15 @@
 import axios from 'axios';
 
-import { apiPrefix } from '../../../../etc/config.json';
+//import { apiPrefix } from '../../../../etc/config.json';
+let apiPrefix = (location.hostname === 'localhost') ? 'http://localhost:8080' : location.href;
 
+if (apiPrefix.lastIndexOf('/') === (apiPrefix.length - 1))
+{
+    apiPrefix = apiPrefix.substr(0, apiPrefix.length - 1);
+}
+console.log('apiPrefix', apiPrefix);
 export default {
-
+    
     createUser(data) {
         return axios.post(`${apiPrefix}/user/create/`, data);
     },

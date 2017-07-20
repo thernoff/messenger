@@ -8,11 +8,10 @@ let searchFriends;
 let friends;
 let activeFriend;
 let dialog;
-let mainImg;
 let infoMessage;
+
 const UserStore = {
     init(){
-        //currentUser = currentUser;
         currentUser = {
             login: 'guest',
             firstname: '',
@@ -22,7 +21,7 @@ const UserStore = {
             '_id': null,
             possibleFriends: [],
             friends: [],
-            mainImg: ''
+            mainImg: './images/no-avatar.jpg'
         };
 
         possibleFriends = [];
@@ -47,8 +46,8 @@ const UserStore = {
         activeFriend = friend;
         let posActiveFriend = currentUser.friends.map((item) => {return item.id}).indexOf(friend._id);
         dialog = currentUser.friends[posActiveFriend].dialog;
-        console.log('UserStore.setActiveFriend: activeFriend', activeFriend);
-        console.log('UserStore.setActiveFriend: dialog', dialog);
+        //console.log('UserStore.setActiveFriend: activeFriend', activeFriend);
+        //console.log('UserStore.setActiveFriend: dialog', dialog);
         emitter.emit('changeActiveFriend');
     },
 
@@ -78,7 +77,6 @@ const UserStore = {
     },
 
     setPossibleFriends(arrPossibleFriends){        
-        //possibleFriends = arrPossibleFriends;
         arrPossibleFriends
             ? possibleFriends = arrPossibleFriends
             : possibleFriends = [];
@@ -93,7 +91,6 @@ const UserStore = {
     },
 
     setFriends(arrFriends){        
-        //possibleFriends = arrPossibleFriends;
         arrFriends
             ? friends = arrFriends
             : friends = [];
@@ -107,9 +104,24 @@ const UserStore = {
         return friends;
     },
 
-    setSearchFriends(arrSearchFriends){        
-        searchFriends = arrSearchFriends;
+    setSearchFriends(arrSearchFriends){
+        let currentUserId = currentUser._id;
+        let friendIdx = friends.map(friend => friend._id);
+        searchFriends = arrSearchFriends.filter( searchFriend => {
+            return ( searchFriend._id !== currentUserId );
+        });
+        searchFriends = searchFriends.map( searchFriend => {
+            if ( friendIdx.indexOf(searchFriend._id) < 0){
+                searchFriend.inFriends = false;
+                return searchFriend;
+            }else{
+                searchFriend.inFriends = true;
+            return searchFriend;
+            }
+            
+        });
         emitter.emit('change');
+        searchFriends = [];
     },
 
     getSearchFriends(){
@@ -121,19 +133,14 @@ const UserStore = {
     },
 
     getMainImg(){
-        if (currentUser.mainImg){
-            return currentUser._id + '/' + currentUser.mainImg;
-        }
-        return 'no-avatar.jpg';
+        return currentUser.mainImg;
     },
 
     setInfoMessage(msg){
         infoMessage = msg;
         console.log('-----UserStore.setInfoMessage-----');
         console.log(msg);
-        //emitter.emit('change');
         emitter.emit('newInfoMessage');
-        //setTimeout( function(){infoMessage = ''}.bind(this), 1000);
         infoMessage = null;
     },
 

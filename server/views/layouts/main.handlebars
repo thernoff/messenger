@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Whinepad v.0.0.1</title>
+    <title>FriendMessenger v.0.0.1</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="/css/bundle.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io.connect('http://localhost:8080');
-      console.log('socket');
+      let domain = (location.hostname === 'localhost') ? 'http://localhost:8080' : location.hostname;
+      var socket = io.connect(domain);
+      console.log('socket: ', socket);
     </script>
   </head>
   <body>

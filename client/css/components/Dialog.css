@@ -23,10 +23,10 @@
   background-color: #5493d4;
   color: #F0F0F0;
   font-family: Norican, cursive;
-  font-size: 42px;
+  font-size: 32px;
   margin: 0;
   padding: 10px 10px 10px 20px;
-  text-align: left;
+  text-align: center;
 }
 
 .Dialog .DialogBody {
@@ -56,7 +56,7 @@
 
 .DialogModal .DialogModalWrap {
 	background: white;
-	margin: 5% auto;
+	margin: 10% auto;
 	width: 350px;
 }
 

@@ -14,11 +14,10 @@ var searchFriends = void 0;
 var friends = void 0;
 var activeFriend = void 0;
 var dialog = void 0;
-var mainImg = void 0;
 var infoMessage = void 0;
+
 var UserStore = {
     init: function init() {
-        //currentUser = currentUser;
         currentUser = {
             login: 'guest',
             firstname: '',
@@ -28,7 +27,7 @@ var UserStore = {
             '_id': null,
             possibleFriends: [],
             friends: [],
-            mainImg: ''
+            mainImg: './images/no-avatar.jpg'
         };
 
         possibleFriends = [];
@@ -51,8 +50,8 @@ var UserStore = {
             return item.id;
         }).indexOf(friend._id);
         dialog = currentUser.friends[posActiveFriend].dialog;
-        console.log('UserStore.setActiveFriend: activeFriend', activeFriend);
-        console.log('UserStore.setActiveFriend: dialog', dialog);
+        //console.log('UserStore.setActiveFriend: activeFriend', activeFriend);
+        //console.log('UserStore.setActiveFriend: dialog', dialog);
         emitter.emit('changeActiveFriend');
     },
     getDialog: function getDialog() {
@@ -79,7 +78,6 @@ var UserStore = {
         emitter.emit('change');
     },
     setPossibleFriends: function setPossibleFriends(arrPossibleFriends) {
-        //possibleFriends = arrPossibleFriends;
         arrPossibleFriends ? possibleFriends = arrPossibleFriends : possibleFriends = [];
         console.log('-----UserStore.setPossibleFriends-----');
         console.log('-----данные Возможные друзья записаны в хранилище-----');
@@ -90,7 +88,6 @@ var UserStore = {
         return possibleFriends;
     },
     setFriends: function setFriends(arrFriends) {
-        //possibleFriends = arrPossibleFriends;
         arrFriends ? friends = arrFriends : friends = [];
         console.log('-----UserStore.setFriends-----');
         console.log('-----данные Друзья записаны в хранилище-----');
@@ -101,8 +98,24 @@ var UserStore = {
         return friends;
     },
     setSearchFriends: function setSearchFriends(arrSearchFriends) {
-        searchFriends = arrSearchFriends;
+        var currentUserId = currentUser._id;
+        var friendIdx = friends.map(function (friend) {
+            return friend._id;
+        });
+        searchFriends = arrSearchFriends.filter(function (searchFriend) {
+            return searchFriend._id !== currentUserId;
+        });
+        searchFriends = searchFriends.map(function (searchFriend) {
+            if (friendIdx.indexOf(searchFriend._id) < 0) {
+                searchFriend.inFriends = false;
+                return searchFriend;
+            } else {
+                searchFriend.inFriends = true;
+                return searchFriend;
+            }
+        });
         emitter.emit('change');
+        searchFriends = [];
     },
     getSearchFriends: function getSearchFriends() {
         return searchFriends;
@@ -111,18 +124,13 @@ var UserStore = {
         emitter.addListener(eventType, fn);
     },
     getMainImg: function getMainImg() {
-        if (currentUser.mainImg) {
-            return currentUser._id + '/' + currentUser.mainImg;
-        }
-        return 'no-avatar.jpg';
+        return currentUser.mainImg;
     },
     setInfoMessage: function setInfoMessage(msg) {
         infoMessage = msg;
         console.log('-----UserStore.setInfoMessage-----');
         console.log(msg);
-        //emitter.emit('change');
         emitter.emit('newInfoMessage');
-        //setTimeout( function(){infoMessage = ''}.bind(this), 1000);
         infoMessage = null;
     },
     getInfoMessage: function getInfoMessage() {

@@ -1,21 +1,27 @@
 import mongoose from "mongoose";
-
+import htmlspecialchars from "htmlspecialchars";
+import passwordHash from 'password-hash';
 import config from '../../etc/config.json';
-
 import '../models/User';
 
 const User = mongoose.model('User');
 
 export function setUpConnection() {
-    mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`);
+    if (process.env.PORT){
+        mongoose.connect(config.remoteDataBase.uri);
+    }else{
+        mongoose.connect(`mongodb://${config.db.host}:${config.db.port}/${config.db.name}`);
+    }
 }
 
 export function createUser(data) {
-    console.log(data);
+    //console.log('DataBaseUtils.createUser: data = ', data);
+    let login = htmlspecialchars(data.login);
+    let password = htmlspecialchars(data.password);
     const user = new User({
-        login: data.login,
-        password: data.password,
-        email: data.email,
+        login: login,
+        password: password//passwordHash.generate(password)
+        //email: htmlspecialchars(data.email),
     });
 
     return user.save(function(error) {
@@ -23,42 +29,21 @@ export function createUser(data) {
     });
 }
 
-export function listUsers() {
-    return User.find();
-}
-
 export function getUser(data) {
     
-    let login = data.login;
-    let password = data.password;
-    //let query = aggregate.lookup({ from: 'users', localField: 'userId', foreignField: '_id', as: 'users' });
-    let query = User.findOne({login: login, password: password});
+    let login = htmlspecialchars(data.login);
+    let password = htmlspecialchars(data.password);
+    //console.log('password: ', password);
+    //console.log('passwordHash.generate(password): ', passwordHash.generate(password));
+    let query = User.findOne({login: login});
+    //console.log('query: ', query);
     let user = query.exec(function(err, user){
         if(err){
-            console.log("An error occurred while updating the data.");
+            console.log("Failed to get User object.");
         }
         //console.log(user);
     });
-
-    let rrr = User.aggregate([
-        { $match: {
-            login: login,
-			password: password
-        }},
-        { $lookup: 
-            { from: 'users', 
-            localField: 'possibleFriends.id', 
-            foreignField: '_id', 
-            as: 'possible' } 
-        },        
-    ]).exec(function (err, result) {
-        if (err) {
-            console.log(err);
-            return;
-        }        
-
-    });
-
+    //console.log('user: ', user);
     return user;
 }
 
@@ -72,7 +57,7 @@ export function getPossibleFriends(arrObjIdsPossibleFriends){
     let query = User.find().select('-password -possibleFriends -friends').where('_id').in(arrIds);
     return query.exec(function(err){
         if(err){
-            console.log("An error occurred while updating the data.");
+            console.log("Failed to get array of possible friends.");
         }
     });
 }
@@ -83,15 +68,16 @@ export function getFriends(arrObjIdsFriends){
     let query = User.find().select('-password -possibleFriends -friends').where('_id').in(arrIds);
     return query.exec(function(err){
         if(err){
-            console.log("An error occurred while updating the data.");
+            console.log("Failed to get array of friends.");
         }
     });
 }
 
-export function searchUser(search) {
+export function searchUser(searchUser) {
     let arr = [];
     let user = [{}];
     let query;
+    let search = searchUser.trim();
     if (search.indexOf(' ') > -1){
         arr = search.split(/[ ]+/);
         if (arr.length === 2){
@@ -110,13 +96,29 @@ export function searchUser(search) {
 }
 
 export function updateUser(data) {
-    //console.log(currentUser);
-    let query = User.findByIdAndUpdate(data._id, data, {new: true});
+    //console.log('data: ', data);
+    /*
+        { login: 'user',
+        password: 'hash',
+        firstname: 'A',
+        lastname: 'B',
+        email: 'user@gmail.com',
+        _id: '596db1b0cf18fb1cfcc9aec0' }
+    */
+    if (!data.password){
+        delete data.password;
+    }else{
+        data.password = passwordHash.generate(data.password);
+    }
+    let currentUserId = data._id;
+    delete data._id;
+    console.log('currentUserId: ', currentUserId);
+    let query = User.findByIdAndUpdate(currentUserId, data, {new: true});
     return query.exec(function(err, user){
         if(err){
             console.log("An error occurred while updating the data.");
+            console.log(err);
         }
-        //console.log(user);
     });
 }
 
@@ -230,14 +232,9 @@ export function sendMessage(data) {
 export function resetNumNewMessage(data) {
     let currentUserId = data.currentUserId;
     let activeFriendId = data.activeFriendId;
-
     let query = User.findById(currentUserId);
-
     return query.exec(function(err, currentUser){
         let pos = currentUser.friends.map((item) => {return item.id}).indexOf(activeFriendId);
-        //console.log(pos);
-
-        
         currentUser.friends[pos].numNewMessages = 0;
         currentUser.save(function(error) {
             if (error){

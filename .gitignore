@@ -1,4 +1,7 @@
 ﻿#Игнорировать установленные пакеты
 /node_modules
 /server/public/
+/server/upload/
 credentials.js
+/__deployme
+/etc

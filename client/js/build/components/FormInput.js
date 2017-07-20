@@ -65,6 +65,8 @@ var FormInput = function (_Component) {
           return _react2.default.createElement('textarea', common);
         case 'file':
           return _react2.default.createElement('input', _extends({}, common, { type: 'file' }));
+        case 'email':
+          return _react2.default.createElement('input', _extends({}, common, { type: 'email' }));
         default:
           if (this.props.error) {
             //return <input {...common} style={{border: '1px solid red'}} type="text" />;
@@ -78,7 +80,7 @@ var FormInput = function (_Component) {
 }(_react.Component);
 
 FormInput.propTypes = {
-  type: _react.PropTypes.oneOf(['year', 'suggest', 'rating', 'text', 'input']),
+  type: _react.PropTypes.oneOf(['year', 'suggest', 'rating', 'text', 'email', 'input']),
   id: _react.PropTypes.string,
   options: _react.PropTypes.array,
   // как в вариантах автозаполнения <option>
