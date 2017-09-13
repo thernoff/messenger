@@ -33,7 +33,10 @@ class Form extends Component {
   
   render() {
     return (
-      <form className="Form">{this.props.fields.map(field => {
+      <form className="Form" 
+        onSubmit={this.props.onSubmit ? this.props.onSubmit : false}
+      >
+      {this.props.fields.map(field => {
         const prefilled = this.props.initialData && this.props.initialData[field.id];
         if (!this.props.readonly) {
           return (

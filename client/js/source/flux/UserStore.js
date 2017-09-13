@@ -133,7 +133,11 @@ const UserStore = {
     },
 
     getMainImg(){
-        return currentUser.mainImg;
+        if (currentUser.mainImg){
+            return currentUser.mainImg;
+        }else{
+            return './images/no-avatar.jpg';
+        }
     },
 
     setInfoMessage(msg){

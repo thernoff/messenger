@@ -208,6 +208,7 @@ class Messenger extends Component{
             >
                 <Form
                     ref="addFriendForm"
+                    onSubmit={this._searchFriend.bind(this)}
                     fields={[
                         {label: 'Имя друга', id: 'search'},
                     ]}

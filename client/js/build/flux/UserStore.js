@@ -124,7 +124,11 @@ var UserStore = {
         emitter.addListener(eventType, fn);
     },
     getMainImg: function getMainImg() {
-        return currentUser.mainImg;
+        if (currentUser.mainImg) {
+            return currentUser.mainImg;
+        } else {
+            return './images/no-avatar.jpg';
+        }
     },
     setInfoMessage: function setInfoMessage(msg) {
         infoMessage = msg;

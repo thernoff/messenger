@@ -656,7 +656,9 @@ var Form = function (_Component) {
 
       return _react2.default.createElement(
         'form',
-        { className: 'Form' },
+        { className: 'Form',
+          onSubmit: this.props.onSubmit ? this.props.onSubmit : false
+        },
         this.props.fields.map(function (field) {
           var prefilled = _this3.props.initialData && _this3.props.initialData[field.id];
           if (!_this3.props.readonly) {
@@ -1585,6 +1587,7 @@ var Messenger = function (_Component) {
             this.setState({
                 errorLogin: false,
                 errorPassword: false
+                //errorEmail: false,
             });
 
             var data = this.refs.registerForm.getData();
@@ -1674,6 +1677,7 @@ var Messenger = function (_Component) {
                 },
                 _react2.default.createElement(_Form2.default, {
                     ref: 'addFriendForm',
+                    onSubmit: this._searchFriend.bind(this),
                     fields: [{ label: 'Имя друга', id: 'search' }]
                 })
             );
@@ -2610,7 +2614,11 @@ var UserStore = {
         emitter.addListener(eventType, fn);
     },
     getMainImg: function getMainImg() {
-        return currentUser.mainImg;
+        if (currentUser.mainImg) {
+            return currentUser.mainImg;
+        } else {
+            return './images/no-avatar.jpg';
+        }
     },
     setInfoMessage: function setInfoMessage(msg) {
         infoMessage = msg;
@@ -2643,7 +2651,8 @@ exports.default = [{
     label: 'Name',
     show: true, // показать в таблице 'Excel'
     sample: '$2 chuck',
-    align: 'left' }, {
+    align: 'left' // выравнивание в 'Excel'
+}, {
     id: 'year',
     label: 'Year',
     type: 'year',

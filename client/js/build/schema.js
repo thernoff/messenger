@@ -15,7 +15,8 @@ exports.default = [{
     label: 'Name',
     show: true, // показать в таблице 'Excel'
     sample: '$2 chuck',
-    align: 'left' }, {
+    align: 'left' // выравнивание в 'Excel'
+}, {
     id: 'year',
     label: 'Year',
     type: 'year',

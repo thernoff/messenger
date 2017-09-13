@@ -83,7 +83,8 @@ class MessagePanel extends Component{
                     <div className="row">
                         <div className="col-xs-11">
                             <Form
-                                ref="sendMessageForm"                    
+                                ref="sendMessageForm"
+                                onSubmit={this._sendMessage.bind(this)}
                                 fields={[
                                     {label: 'Введите текст сообщения', type: 'text', id: 'message'},
                                 ]}

@@ -179,6 +179,7 @@ var Messenger = function (_Component) {
             this.setState({
                 errorLogin: false,
                 errorPassword: false
+                //errorEmail: false,
             });
 
             var data = this.refs.registerForm.getData();
@@ -268,6 +269,7 @@ var Messenger = function (_Component) {
                 },
                 _react2.default.createElement(_Form2.default, {
                     ref: 'addFriendForm',
+                    onSubmit: this._searchFriend.bind(this),
                     fields: [{ label: 'Имя друга', id: 'search' }]
                 })
             );

@@ -20,7 +20,7 @@ export function createUser(data) {
     let password = htmlspecialchars(data.password);
     const user = new User({
         login: login,
-        password: password//passwordHash.generate(password)
+        password: passwordHash.generate(password)
         //email: htmlspecialchars(data.email),
     });
 

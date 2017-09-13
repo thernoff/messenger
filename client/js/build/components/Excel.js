@@ -67,7 +67,8 @@ var Excel = function (_Component) {
       sortby: null, // schema.id
       descending: false,
       edit: null, // {row index, schema.id},
-      dialog: null };
+      dialog: null // {type, idx}
+    };
 
     _this.schema = _CRUDStore2.default.getSchema();
 

@@ -626,7 +626,9 @@ var Form = function (_Component) {
 
       return _react2.default.createElement(
         'form',
-        { className: 'Form' },
+        { className: 'Form',
+          onSubmit: this.props.onSubmit ? this.props.onSubmit : false
+        },
         this.props.fields.map(function (field) {
           var prefilled = _this3.props.initialData && _this3.props.initialData[field.id];
           if (!_this3.props.readonly) {
@@ -2418,7 +2420,11 @@ var UserStore = {
         emitter.addListener(eventType, fn);
     },
     getMainImg: function getMainImg() {
-        return currentUser.mainImg;
+        if (currentUser.mainImg) {
+            return currentUser.mainImg;
+        } else {
+            return './images/no-avatar.jpg';
+        }
     },
     setInfoMessage: function setInfoMessage(msg) {
         infoMessage = msg;
